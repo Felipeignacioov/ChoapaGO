@@ -5,88 +5,192 @@
 <title>Batidos & Comida Fitness</title>
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <style>
+* {
+  box-sizing: border-box;
+}
 body {
   margin: 0;
-  font-family: Arial, sans-serif;
+  font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
   background: #f6faf8;
   color: #1f2937;
+  line-height: 1.6;
 }
-
 header {
-  background: linear-gradient(120deg, #34d399, #60a5fa);
+  background: linear-gradient(135deg, #10b981 0%, #34d399 50%, #60a5fa 100%);
   color: white;
-  padding: 80px 20px;
+  padding: 100px 20px;
   text-align: center;
+  position: relative;
+  overflow: hidden;
 }
-
+header::before {
+  content: '';
+  position: absolute;
+  top: 0;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  background: url('data:image/svg+xml,<svg width="100" height="100" xmlns="http://www.w3.org/2000/svg"><circle cx="50" cy="50" r="2" fill="rgba(255,255,255,0.1)"/></svg>');
+  opacity: 0.3;
+}
+header > * {
+  position: relative;
+  z-index: 1;
+}
 header h1 {
-  font-size: 42px;
-  margin-bottom: 10px;
+  font-size: 52px;
+  margin-bottom: 15px;
+  font-weight: 700;
+  text-shadow: 2px 2px 4px rgba(0,0,0,0.2);
+  animation: fadeInDown 0.8s ease-out;
 }
-
 header p {
-  font-size: 18px;
-  max-width: 600px;
-  margin: 0 auto 30px;
+  font-size: 20px;
+  max-width: 650px;
+  margin: 0 auto 40px;
+  opacity: 0.95;
+  animation: fadeInUp 0.8s ease-out 0.2s backwards;
 }
-
 .cta-btn {
   background: #22c55e;
   color: white;
-  padding: 15px 35px;
-  border-radius: 30px;
+  padding: 18px 45px;
+  border-radius: 50px;
   text-decoration: none;
   font-weight: bold;
   font-size: 18px;
+  display: inline-block;
+  transition: all 0.3s ease;
+  box-shadow: 0 8px 20px rgba(34, 197, 94, 0.3);
+  animation: fadeInUp 0.8s ease-out 0.4s backwards;
 }
-
+.cta-btn:hover {
+  background: #16a34a;
+  transform: translateY(-3px);
+  box-shadow: 0 12px 30px rgba(34, 197, 94, 0.4);
+}
 section {
-  padding: 60px 20px;
-  max-width: 1000px;
+  padding: 80px 20px;
+  max-width: 1200px;
   margin: auto;
 }
-
+section h2 {
+  text-align: center;
+  font-size: 38px;
+  margin-bottom: 50px;
+  color: #0f172a;
+  font-weight: 700;
+}
 .grid {
   display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
-  gap: 25px;
+  grid-template-columns: repeat(auto-fit, minmax(260px, 1fr));
+  gap: 30px;
 }
-
 .card {
   background: white;
-  padding: 30px;
-  border-radius: 16px;
-  box-shadow: 0 10px 25px rgba(0,0,0,0.05);
+  padding: 35px;
+  border-radius: 20px;
+  box-shadow: 0 4px 15px rgba(0,0,0,0.08);
+  transition: all 0.3s ease;
+  border: 1px solid rgba(16, 185, 129, 0.1);
 }
-
+.card:hover {
+  transform: translateY(-8px);
+  box-shadow: 0 12px 35px rgba(0,0,0,0.15);
+  border-color: rgba(16, 185, 129, 0.3);
+}
 .card h3 {
   margin-top: 0;
   color: #16a34a;
+  font-size: 22px;
+  margin-bottom: 12px;
+  font-weight: 600;
 }
-
+.card p {
+  color: #64748b;
+  font-size: 15px;
+  line-height: 1.7;
+}
 .features {
-  background: #ecfdf5;
+  background: linear-gradient(to bottom, #ecfdf5, #f0fdf4);
 }
-
 .steps {
-  background: #f0f9ff;
+  background: linear-gradient(to bottom, #f0f9ff, #e0f2fe);
 }
-
+.steps .card {
+  background: linear-gradient(145deg, #ffffff, #f8fafc);
+}
 footer {
-  background: #111827;
+  background: linear-gradient(135deg, #1e293b, #0f172a);
   color: white;
   text-align: center;
-  padding: 40px 20px;
+  padding: 60px 20px;
+}
+footer h2 {
+  color: white;
+  margin-bottom: 15px;
+  font-size: 36px;
+}
+footer p:first-of-type {
+  font-size: 18px;
+  margin-bottom: 30px;
+  opacity: 0.9;
+}
+footer .cta-btn {
+  margin-bottom: 20px;
+}
+
+/* Animaciones */
+@keyframes fadeInDown {
+  from {
+    opacity: 0;
+    transform: translateY(-30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(30px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+/* Responsive */
+@media (max-width: 768px) {
+  header h1 {
+    font-size: 36px;
+  }
+  header p {
+    font-size: 16px;
+  }
+  section h2 {
+    font-size: 30px;
+  }
+  .grid {
+    grid-template-columns: 1fr;
+  }
+}
+
+/* Emoji styling */
+.card h3 {
+  display: flex;
+  align-items: center;
+  gap: 10px;
 }
 </style>
 </head>
-
 <body>
-
 <header>
-  <h1>Batidos & Comida Fitness</h1>
-  <p>Nutrición real para tu cuerpo. Batidos de proteína, menús con macronutrientes y opciones para diabéticos.</p>
-  <a class="cta-btn" href="https://wa.me/569XXXXXXXX">Pedir por WhatsApp</a>
+  <h1>🥤 Batidos & Comida Fitness</h1>
+  <p>Nutrición real para tu cuerpo. Batidos de proteína, menús con macronutrientes calculados y opciones especiales para diabéticos.</p>
+  <a class="cta-btn" href="https://sell.amazon.com/">💬 Pedir por WhatsApp</a>
 </header>
 
 <section>
@@ -94,19 +198,19 @@ footer {
   <div class="grid">
     <div class="card">
       <h3>🥤 Batidos de proteína</h3>
-      <p>Preparados al momento con ingredientes reales y sin azúcar refinada.</p>
+      <p>Preparados al momento con ingredientes naturales de primera calidad, sin azúcar refinada ni aditivos artificiales.</p>
     </div>
     <div class="card">
       <h3>🥗 Menús fitness</h3>
-      <p>Comidas balanceadas con macronutrientes específicos según tu objetivo.</p>
+      <p>Comidas perfectamente balanceadas con macronutrientes específicos diseñados según tu objetivo personal.</p>
     </div>
     <div class="card">
       <h3>🩺 Opciones para diabéticos</h3>
-      <p>Recetas sin azúcar y con control de carbohidratos.</p>
+      <p>Recetas especializadas sin azúcar, con control preciso de carbohidratos y bajo índice glucémico.</p>
     </div>
     <div class="card">
       <h3>🍍 Jugos detox</h3>
-      <p>Jugos naturales que ayudan a desintoxicar y mejorar tu energía.</p>
+      <p>Jugos 100% naturales que ayudan a desintoxicar tu organismo y aumentar tu nivel de energía diaria.</p>
     </div>
   </div>
 </section>
@@ -115,20 +219,20 @@ footer {
   <h2>¿Por qué elegirnos?</h2>
   <div class="grid">
     <div class="card">
-      <h3>Ingredientes reales</h3>
-      <p>Usamos frutas, proteínas de calidad y productos frescos.</p>
+      <h3>✨ Ingredientes reales</h3>
+      <p>Usamos frutas frescas, proteínas de alta calidad y productos naturales sin procesar.</p>
     </div>
     <div class="card">
-      <h3>Macros calculados</h3>
-      <p>Cada comida está diseñada para apoyar tu cuerpo y tus objetivos.</p>
+      <h3>📊 Macros calculados</h3>
+      <p>Cada comida está científicamente diseñada para apoyar tu cuerpo y alcanzar tus objetivos.</p>
     </div>
     <div class="card">
-      <h3>Sin azúcar refinada</h3>
-      <p>Ideal para personas que cuidan su salud y niveles de glucosa.</p>
+      <h3>🚫 Sin azúcar refinada</h3>
+      <p>Perfecto para personas que cuidan su salud y mantienen estables sus niveles de glucosa.</p>
     </div>
     <div class="card">
-      <h3>Preparado al momento</h3>
-      <p>No congelado. No industrial. 100% fresco.</p>
+      <h3>⚡ Preparado al momento</h3>
+      <p>Nada de congelados. Nada industrial. 100% fresco y recién preparado para ti.</p>
     </div>
   </div>
 </section>
@@ -138,29 +242,28 @@ footer {
   <div class="grid">
     <div class="card">
       <h3>1️⃣ Escríbenos</h3>
-      <p>Haz clic en el botón y contáctanos por WhatsApp.</p>
+      <p>Haz clic en el botón de WhatsApp y contáctanos directamente. Responderemos todas tus dudas.</p>
     </div>
     <div class="card">
       <h3>2️⃣ Elige tu plan</h3>
-      <p>Batidos, menús diarios o combos semanales.</p>
+      <p>Batidos individuales, menús diarios completos o combos semanales personalizados.</p>
     </div>
     <div class="card">
       <h3>3️⃣ Lo preparamos</h3>
-      <p>Cocinamos y preparamos todo fresco para ti.</p>
+      <p>Nuestro equipo cocina y prepara todo fresco especialmente para ti el mismo día.</p>
     </div>
     <div class="card">
       <h3>4️⃣ Lo recibes</h3>
-      <p>Retiro o entrega según tu preferencia.</p>
+      <p>Retiro en local o entrega a domicilio según tu preferencia y comodidad.</p>
     </div>
   </div>
 </section>
 
 <footer>
-  <h2>Empieza hoy</h2>
-  <p>Alimenta tu cuerpo como se merece.</p>
-  <a class="cta-btn" href="https://wa.me/569XXXXXXXX">Pedir por WhatsApp</a>
-  <p style="margin-top:20px; font-size:14px;">© 2026 Batidos & Comida Fitness</p>
+  <h2>Empieza hoy tu transformación</h2>
+  <p>Alimenta tu cuerpo como realmente se merece</p>
+  <a class="cta-btn" href="https://sell.amazon.com/">💬 Pedir por WhatsApp</a>
+  <p style="margin-top:30px; font-size:14px; opacity:0.7;">© 2026 Batidos & Comida Fitness - Todos los derechos reservados</p>
 </footer>
-
 </body>
 </html>
