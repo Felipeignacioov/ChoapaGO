@@ -172,7 +172,7 @@ button, a, .icon-btn, .help-pill, .swap-btn, .service-opt, .contact-btn, .peek-c
 .car-susp.bounce{ animation: carSuspensionBounce 0.62s cubic-bezier(.34,1.56,.64,1) 1; }
 .car-wrap{ width:34px; height:38px; position:relative; transform-origin:50% 50%; filter: drop-shadow(0 1.5px 2.5px rgba(0,0,0,0.4)); }
 .car-wrap svg{ width:100%; height:100%; display:block; position:relative; z-index:2; }
-.car-wrap::before{ content:''; position:absolute; left:50%; top:56%; width:40px; height:40px; margin:-20px 0 0 -20px; border-radius:50%; background:radial-gradient(circle, rgba(45,212,191,0.20) 0%, rgba(20,184,166,0.09) 55%, rgba(20,184,166,0) 74%); z-index:1; animation: carHalo 3.2s ease-in-out infinite; pointer-events:none; will-change: transform, opacity; }
+.car-wrap::before{ content:''; position:absolute; left:50%; top:56%; width:40px; height:40px; margin:-20px 0 0 -20px; border-radius:50%; background:radial-gradient(circle, rgba(45,212,191,0.15) 0%, rgba(20,184,166,0.06) 55%, rgba(20,184,166,0) 74%); z-index:1; animation: carHalo 3.2s ease-in-out infinite; pointer-events:none; will-change: transform, opacity; }
 @keyframes carFloat{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-1px);} }
 @keyframes carHalo{ 0%,100%{ opacity:.55; transform:scale(1);} 50%{ opacity:.72; transform:scale(1.035);} }
 /* Rebote de suspensión: se dispara una sola vez (no infinite) cada vez
@@ -2179,100 +2179,71 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
   carSuspEl.className = 'car-susp';
   carWrapEl = document.createElement('div');
   carWrapEl.className = 'car-wrap';
+ /* Rediseño (v2): auto blanco perlado, techo/cristales negros unificados
+     en una sola forma, espejos y ruedas apenas insinuados, sin brillos
+     puntuales (glow) que emborronen el ícono a 32-40px. Menos formas,
+     mejor definidas — referencia visual: Uber / Apple Maps / Tesla. */
   carWrapEl.innerHTML = `<svg viewBox="0 0 34 38" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="carBody" x1="0" y1="0" x2="1" y2="0">
-          <stop offset="0%"  stop-color="#0c0f12"/>
-          <stop offset="15%" stop-color="#3d444c"/>
-          <stop offset="32%" stop-color="#181c20"/>
-          <stop offset="50%" stop-color="#252a30"/>
-          <stop offset="68%" stop-color="#181c20"/>
-          <stop offset="85%" stop-color="#3d444c"/>
-          <stop offset="100%" stop-color="#0c0f12"/>
+          <stop offset="0%"  stop-color="#c6cbd1"/>
+          <stop offset="14%" stop-color="#f8f9fb"/>
+          <stop offset="50%" stop-color="#ffffff"/>
+          <stop offset="86%" stop-color="#f8f9fb"/>
+          <stop offset="100%" stop-color="#c6cbd1"/>
         </linearGradient>
-        <linearGradient id="carRoofPanel" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#454e56"/><stop offset="45%" stop-color="#2c333a"/><stop offset="100%" stop-color="#20262b"/>
-        </linearGradient>
-        <linearGradient id="carGlassFront" x1="0" y1="0" x2="0.6" y2="1">
-          <stop offset="0%" stop-color="#2b4750"/><stop offset="45%" stop-color="#0c1c22"/><stop offset="100%" stop-color="#050b0e"/>
-        </linearGradient>
-        <linearGradient id="carGlassRear" x1="0" y1="1" x2="0.6" y2="0">
-          <stop offset="0%" stop-color="#1c333a"/><stop offset="45%" stop-color="#0a181d"/><stop offset="100%" stop-color="#050b0e"/>
+        <linearGradient id="carCabin" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#2b3034"/>
+          <stop offset="55%" stop-color="#15181b"/>
+          <stop offset="100%" stop-color="#0a0c0e"/>
         </linearGradient>
         <linearGradient id="carSheen" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/><stop offset="45%" stop-color="#ffffff" stop-opacity="0.5"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0"/>
+          <stop offset="42%" stop-color="#ffffff" stop-opacity="0.55"/>
+          <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
         </linearGradient>
-        <radialGradient id="carLightWarm" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0%" stop-color="#fff3d6"/><stop offset="100%" stop-color="#ffca66"/>
-        </radialGradient>
-        <radialGradient id="carLightRed" cx="0.5" cy="0.5" r="0.5">
-          <stop offset="0%" stop-color="#ff7a70"/><stop offset="100%" stop-color="#e42f2f"/>
-        </radialGradient>
         <filter id="carSoftBlur" x="-80%" y="-80%" width="260%" height="260%">
           <feGaussianBlur stdDeviation="0.9"/>
-        </filter>
-        <filter id="carLightGlow" x="-160%" y="-160%" width="420%" height="420%">
-          <feGaussianBlur stdDeviation="0.7"/>
         </filter>
       </defs>
 
       <ellipse id="carShadowAmbient" cx="17.6" cy="32.6" rx="10.5" ry="3.2" fill="#000" opacity="0.16" filter="url(#carSoftBlur)"/>
       <ellipse id="carShadow" cx="17.2" cy="31.4" rx="8" ry="1.9" fill="#000" opacity="0.34"/>
 
-      <path d="M17,2.1 C21.2,2.1 24.7,3.7 26.3,7.5 C27.3,10 27.5,11.6 26.5,13.3
-               C25.7,14.6 25.2,15.8 25.5,17.3 C25.8,18.7 26.2,19.6 26.7,21.2
-               C27.6,24 27.4,26.7 25.9,29.5 C24.5,32.2 22.2,34.3 17,34.5
-               C11.8,34.3 9.5,32.2 8.1,29.5 C6.6,26.7 6.4,24 7.3,21.2
-               C7.8,19.6 8.2,18.7 8.5,17.3 C8.8,15.8 8.3,14.6 7.5,13.3
-               C6.5,11.6 6.7,10 7.7,7.5 C9.3,3.7 12.8,2.1 17,2.1 Z"
-            fill="url(#carBody)" stroke="#04120d" stroke-width="0.5"/>
-      <path d="M17,2.1 C21.2,2.1 24.7,3.7 26.3,7.5 C27.3,10 27.5,11.6 26.5,13.3
-               C25.7,14.6 25.2,15.8 25.5,17.3 C25.8,18.7 26.2,19.6 26.7,21.2
-               C27.6,24 27.4,26.7 25.9,29.5 C24.5,32.2 22.2,34.3 17,34.5
-               C11.8,34.3 9.5,32.2 8.1,29.5 C6.6,26.7 6.4,24 7.3,21.2
-               C7.8,19.6 8.2,18.7 8.5,17.3 C8.8,15.8 8.3,14.6 7.5,13.3
-               C6.5,11.6 6.7,10 7.7,7.5 C9.3,3.7 12.8,2.1 17,2.1 Z"
-            fill="none" stroke="#0d9488" stroke-width="0.35" opacity="0.4"/>
+      <!-- ruedas: solo insinuadas, muy tenues, sin detalle de llanta -->
+      <rect x="5.7" y="9.7" width="1.8" height="4.4" rx="0.9" fill="#0c0f11" opacity="0.35"/>
+      <rect x="26.5" y="9.7" width="1.8" height="4.4" rx="0.9" fill="#0c0f11" opacity="0.35"/>
+      <rect x="5.7" y="23.9" width="1.8" height="4.4" rx="0.9" fill="#0c0f11" opacity="0.35"/>
+      <rect x="26.5" y="23.9" width="1.8" height="4.4" rx="0.9" fill="#0c0f11" opacity="0.35"/>
 
-      <rect x="5.3" y="8.8" width="2.5" height="5.4" rx="1.1" fill="#0a0c0e"/>
-      <rect x="5.7" y="9.4" width="0.55" height="4.2" rx="0.27" fill="#565f66" opacity="0.55"/>
-      <rect x="26.2" y="8.8" width="2.5" height="5.4" rx="1.1" fill="#0a0c0e"/>
-      <rect x="27.8" y="9.4" width="0.55" height="4.2" rx="0.27" fill="#565f66" opacity="0.55"/>
-      <rect x="5.3" y="23" width="2.5" height="5.4" rx="1.1" fill="#0a0c0e"/>
-      <rect x="5.7" y="23.6" width="0.55" height="4.2" rx="0.27" fill="#565f66" opacity="0.55"/>
-      <rect x="26.2" y="23" width="2.5" height="5.4" rx="1.1" fill="#0a0c0e"/>
-      <rect x="27.8" y="23.6" width="0.55" height="4.2" rx="0.27" fill="#565f66" opacity="0.55"/>
+      <!-- carrocería: silueta única, limpia, sin líneas internas -->
+      <path d="M17,2.4 C20.8,2.4 23.8,3.9 25.2,7.2 C26,9.3 26.1,10.7 25.3,12.2
+               C24.6,13.3 24.3,14.3 24.6,15.6 C24.9,16.8 25.2,17.6 25.6,19
+               C26.3,21.4 26.1,23.7 24.8,26.1 C23.5,28.4 21.5,30.3 17,30.5
+               C12.5,30.3 10.5,28.4 9.2,26.1 C7.9,23.7 7.7,21.4 8.4,19
+               C8.8,17.6 9.1,16.8 9.4,15.6 C9.7,14.3 9.4,13.3 8.7,12.2
+               C7.9,10.7 8,9.3 8.8,7.2 C10.2,3.9 13.2,2.4 17,2.4 Z"
+            fill="url(#carBody)" stroke="#b7bcc2" stroke-width="0.3"/>
 
-      <path d="M13,6.6 L21,6.6 L23.3,12.7 L10.7,12.7 Z" fill="url(#carGlassFront)"/>
-      <path d="M13.6,7.1 L16.2,7.1 L14.6,12.1 L11.6,12.1 Z" fill="#ffffff" opacity="0.10"/>
+      <!-- techo + parabrisas + luneta: una sola forma negra unificada -->
+      <path d="M10.9,8.6 L23.1,8.6 L24.1,12.3 L23.5,12.3 L23.5,22.9 L24.1,22.9 L23.1,26.6 L10.9,26.6 L9.9,22.9 L10.5,22.9 L10.5,12.3 L9.9,12.3 Z"
+            fill="url(#carCabin)"/>
+      <rect x="10.6" y="12.6" width="12.8" height="10" rx="2.4" fill="#0c1114"/>
 
-      <rect x="10.1" y="12.7" width="13.8" height="11.9" rx="3.6" fill="url(#carRoofPanel)"/>
-      <rect x="10.6" y="12.55" width="12.8" height="0.4" fill="#000000" opacity="0.35"/>
-      <rect x="10.6" y="24.45" width="12.8" height="0.4" fill="#000000" opacity="0.35"/>
-      <rect x="12" y="13.6" width="1.1" height="10.1" rx="0.55" fill="#ffffff" opacity="0.08"/>
-      <rect x="9.55" y="14.2" width="1" height="9" rx="0.5" fill="#b7c0c7" opacity="0.6"/>
-      <rect x="23.45" y="14.2" width="1" height="9" rx="0.5" fill="#b7c0c7" opacity="0.6"/>
+      <!-- espejos: mínimos -->
+      <rect x="8.9" y="12.7" width="1.3" height="2.6" rx="0.65" fill="#a3aab0" opacity="0.85"/>
+      <rect x="23.8" y="12.7" width="1.3" height="2.6" rx="0.65" fill="#a3aab0" opacity="0.85"/>
 
-      <rect x="8.5" y="13.5" width="1.5" height="10.5" rx="0.7" fill="#0a161a"/>
-      <rect x="24" y="13.5" width="1.5" height="10.5" rx="0.7" fill="#0a161a"/>
+      <!-- brillo diagonal sutil, una sola pasada -->
+      <rect x="14.9" y="2.8" width="3.2" height="26.5" rx="1.6" fill="url(#carSheen)" opacity="0.35"/>
 
-      <path d="M10.7,24.6 L23.3,24.6 L21,29.9 L13,29.9 Z" fill="url(#carGlassRear)"/>
+      <!-- luces delanteras: blanco frío, sin glow -->
+      <rect x="11" y="3.9" width="2.4" height="0.95" rx="0.48" fill="#eef6ff"/>
+      <rect x="20.6" y="3.9" width="2.4" height="0.95" rx="0.48" fill="#eef6ff"/>
 
-      <path d="M6.6,11 C7.6,10.7 8.3,11.1 8.4,12 C8.5,12.7 8,13.1 7.2,13 C6.5,12.9 6.1,12.4 6.1,11.8 C6.1,11.4 6.2,11.1 6.6,11 Z" fill="#1c2226"/>
-      <path d="M27.4,11 C26.4,10.7 25.7,11.1 25.6,12 C25.5,12.7 26,13.1 26.8,13 C27.5,12.9 27.9,12.4 27.9,11.8 C27.9,11.4 27.8,11.1 27.4,11 Z" fill="#1c2226"/>
-
-      <rect x="15.6" y="2.6" width="2.8" height="4.4" rx="1.4" fill="url(#carSheen)" opacity="0.6"/>
-      <rect x="15.6" y="30.2" width="2.8" height="4.1" rx="1.4" fill="url(#carSheen)" opacity="0.45"/>
-
-      <circle cx="12.1" cy="4.6" r="1.7" fill="url(#carLightWarm)" opacity="0.4" filter="url(#carLightGlow)"/>
-      <circle cx="21.9" cy="4.6" r="1.7" fill="url(#carLightWarm)" opacity="0.4" filter="url(#carLightGlow)"/>
-      <rect x="10.8" y="4" width="2.7" height="1.15" rx="0.55" fill="url(#carLightWarm)"/>
-      <rect x="20.5" y="4" width="2.7" height="1.15" rx="0.55" fill="url(#carLightWarm)"/>
-
-      <circle cx="12.1" cy="33.1" r="1.5" fill="url(#carLightRed)" opacity="0.4" filter="url(#carLightGlow)"/>
-      <circle cx="21.9" cy="33.1" r="1.5" fill="url(#carLightRed)" opacity="0.4" filter="url(#carLightGlow)"/>
-      <rect x="10.9" y="32.6" width="2.6" height="1" rx="0.5" fill="url(#carLightRed)" opacity="0.95"/>
-      <rect x="20.5" y="32.6" width="2.6" height="1" rx="0.5" fill="url(#carLightRed)" opacity="0.95"/>
+      <!-- luces traseras: rojo, sin glow -->
+      <rect x="11.1" y="28.9" width="2.3" height="0.9" rx="0.45" fill="#e0433f" opacity="0.9"/>
+      <rect x="20.6" y="28.9" width="2.3" height="0.9" rx="0.45" fill="#e0433f" opacity="0.9"/>
     </svg>`;
   carSuspEl.appendChild(carWrapEl);
   carFloatEl.appendChild(carSuspEl);
