@@ -152,18 +152,39 @@ button, a, .icon-btn, .help-pill, .swap-btn, .service-opt, .contact-btn, .peek-c
 .pin-dest .dest-halo{ position:absolute; left:50%; bottom:1px; width:26px; height:26px; margin-left:-13px; border-radius:50%; background:radial-gradient(circle, rgba(16,185,129,0.4) 0%, rgba(16,185,129,0) 70%); z-index:1; animation: destPulse 3.2s ease-out infinite; will-change: transform, opacity; }
 @keyframes destPulse{ 0%{ transform:scale(.55); opacity:.6;} 70%{ opacity:.1;} 100%{ transform:scale(1.7); opacity:0;} }
 
-/* vehículo: silueta cenital (top-down), rotación por rumbo real.
-   .car-anchor es lo que MapLibre traslada/rota; .car-float (hijo) resuelve el
-   "flotado" solo con transform (GPU); .car-wrap (nieto) se escala por zoom
-   vía JS sin pisar la animación de flotado. */
+/* vehículo: silueta cenital (top-down) tipo SUV, rotación por rumbo real
+   con anticipación de curvas. Jerarquía (cada nivel resuelve UNA sola
+   animación, sin pisarse entre sí):
+     .car-anchor  -> lo que MapLibre traslada/rota (posición + rumbo).
+     .car-float   -> flotado idle, solo transform (GPU), CSS puro.
+     .car-susp    -> "suspensión": rebote sutil de scaleY al iniciar cada
+                     tramo de ruta (ver pickNextTarget), CSS puro,
+                     disparado por JS solo con un toggle de clase.
+     .car-wrap    -> escala por zoom + "lean" (ligera compresión lateral
+                     en curvas cerradas), togo vía JS en cada frame.
+   Separar estas responsabilidades en niveles distintos es lo que permite
+   combinar flotado + suspensión + zoom + lean sin que un transform
+   pise al otro. */
 .car-anchor{ width:1px; height:1px; opacity:0; transition: opacity .5s ease; }
 .car-anchor.visible{ opacity:1; }
-.car-float{ width:30px; height:30px; position:relative; left:-15px; top:-15px; animation: carFloat 2.6s ease-in-out infinite; will-change: transform; }
-.car-wrap{ width:30px; height:30px; position:relative; transform-origin:50% 50%; filter: drop-shadow(0 3.5px 6px rgba(0,0,0,0.55)); }
+.car-float{ width:30px; height:32px; position:relative; left:-15px; top:-16px; animation: carFloat 2.6s ease-in-out infinite; will-change: transform; }
+.car-susp{ width:100%; height:100%; transform-origin:50% 58%; }
+.car-susp.bounce{ animation: carSuspensionBounce 0.62s cubic-bezier(.34,1.56,.64,1) 1; }
+.car-wrap{ width:30px; height:32px; position:relative; transform-origin:50% 50%; filter: drop-shadow(0 3.5px 6px rgba(0,0,0,0.5)); }
 .car-wrap svg{ width:100%; height:100%; display:block; position:relative; z-index:2; }
 .car-wrap::before{ content:''; position:absolute; left:50%; top:50%; width:44px; height:44px; margin:-22px 0 0 -22px; border-radius:50%; background:radial-gradient(circle, rgba(110,231,183,0.34) 0%, rgba(16,185,129,0.14) 55%, rgba(16,185,129,0) 72%); z-index:1; animation: carHalo 2.6s ease-in-out infinite; pointer-events:none; will-change: transform, opacity; }
 @keyframes carFloat{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-1px);} }
 @keyframes carHalo{ 0%,100%{ opacity:.6; transform:scale(1);} 50%{ opacity:.9; transform:scale(1.06);} }
+/* Rebote de suspensión: se dispara una sola vez (no infinite) cada vez
+   que el auto define un nuevo tramo de ruta — un ligero "hundimiento" y
+   recuperación, como si asentara el chasis al tomar velocidad/dirección
+   nueva. Sutil a propósito: nunca más de ~8% de compresión. */
+@keyframes carSuspensionBounce{
+  0%   { transform: scaleY(1); }
+  32%  { transform: scaleY(0.925); }
+  62%  { transform: scaleY(1.03); }
+  100% { transform: scaleY(1); }
+}
 
 /* --- Puntos de interés (POI) reales de Salamanca ---
    Los POI ya NO son marcadores HTML (maplibregl.Marker): se renderizan
@@ -2119,7 +2140,7 @@ async function reverseGeocodeLabel(coord) {
   }
 }
 /* ---------- D. MARCADORES NATIVOS ---------- */
-let carMarker, carEl, carFloatEl, carWrapEl, originMarker, destMarker;
+let carMarker, carEl, carFloatEl, carSuspEl, carWrapEl, carShadowEl, originMarker, destMarker;
 
 function buildOriginDestinationMarkers(originCoord, destCoord) {
   const originEl = document.createElement('div');
@@ -2139,28 +2160,56 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
      Jerarquía: carEl (anchor de MapLibre) > carFloatEl (flotado, solo
      transform, 60fps en cualquier dispositivo) > carWrapEl (escala por
      zoom vía JS, sin pisar la animación del flotado). */
+  /* Vehículo SUV cenital, con acabado premium: carrocería con gradiente
+     nacarado, cabina/vidrios con tinte propio (sensación de profundidad
+     en vez de un ícono plano), espejos laterales, rieles de techo,
+     reflejo especular sutil en el capó, luces tipo LED y sombra en dos
+     capas (una difusa/ambiental + una de contacto nítida bajo el chasis,
+     la de contacto con id="carShadow" para poder estirarla levemente en
+     curvas cerradas, ver tickCar).
+     Jerarquía: carEl (anchor de MapLibre) > carFloatEl (flotado, solo
+     transform, 60fps en cualquier dispositivo) > carSuspEl (rebote de
+     suspensión, disparado por JS con un toggle de clase) > carWrapEl
+     (escala por zoom + lean en curvas, vía JS). */
   carEl = document.createElement('div');
   carEl.className = 'car-anchor';
   carFloatEl = document.createElement('div');
   carFloatEl.className = 'car-float';
+  carSuspEl = document.createElement('div');
+  carSuspEl.className = 'car-susp';
   carWrapEl = document.createElement('div');
   carWrapEl.className = 'car-wrap';
-  carWrapEl.innerHTML = `<svg viewBox="0 0 32 32" xmlns="http://www.w3.org/2000/svg">
+  carWrapEl.innerHTML = `<svg viewBox="0 0 32 36" xmlns="http://www.w3.org/2000/svg">
       <defs>
-        <linearGradient id="carBody" x1="0" y1="0" x2="0" y2="1">
-          <stop offset="0%" stop-color="#f7fbfc"/><stop offset="55%" stop-color="#e6edef"/><stop offset="100%" stop-color="#a9b7bd"/>
+        <linearGradient id="carBody" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#c3ccd1"/><stop offset="14%" stop-color="#f8fbfc"/><stop offset="50%" stop-color="#eef3f4"/><stop offset="86%" stop-color="#f8fbfc"/><stop offset="100%" stop-color="#aab6bc"/>
+        </linearGradient>
+        <linearGradient id="carRoof" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#13333f"/><stop offset="100%" stop-color="#091920"/>
+        </linearGradient>
+        <linearGradient id="carGlow" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#ffffff" stop-opacity="0.6"/><stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
         </linearGradient>
       </defs>
-      <ellipse cx="16" cy="27" rx="6.4" ry="1.9" fill="#000" opacity="0.25"/>
-      <rect x="11.6" y="4" width="8.8" height="23" rx="4.2" fill="url(#carBody)" stroke="#059669" stroke-width="1.1"/>
-      <rect x="13" y="9.4" width="6" height="9.4" rx="2.6" fill="#0B2733" opacity="0.85"/>
-      <circle cx="13.3" cy="7.4" r="1" fill="#FFC94A"/>
-      <circle cx="18.7" cy="7.4" r="1" fill="#FFC94A"/>
-      <rect x="12.6" y="23.4" width="2.4" height="1.1" rx="0.5" fill="#FF453A" opacity="0.8"/>
-      <rect x="17" y="23.4" width="2.4" height="1.1" rx="0.5" fill="#FF453A" opacity="0.8"/>
+      <ellipse cx="16" cy="29.6" rx="7.6" ry="2.4" fill="#000" opacity="0.14"/>
+      <ellipse id="carShadow" cx="16" cy="28.7" rx="6.4" ry="1.7" fill="#000" opacity="0.32"/>
+      <rect x="10.6" y="5" width="10.8" height="24.4" rx="4.6" fill="url(#carBody)" stroke="#059669" stroke-width="1.05"/>
+      <rect x="9.15" y="11.6" width="1.6" height="2.6" rx="0.8" fill="#8b979c"/>
+      <rect x="21.25" y="11.6" width="1.6" height="2.6" rx="0.8" fill="#8b979c"/>
+      <rect x="12.1" y="7.6" width="1" height="16.6" rx="0.5" fill="#ffffff" opacity="0.32"/>
+      <rect x="18.9" y="7.6" width="1" height="16.6" rx="0.5" fill="#ffffff" opacity="0.32"/>
+      <rect x="12.4" y="9.2" width="7.2" height="11.4" rx="3.1" fill="url(#carRoof)"/>
+      <rect x="13.1" y="9.9" width="2.1" height="9.8" rx="1" fill="#ffffff" opacity="0.09"/>
+      <rect x="14.6" y="5.7" width="2.8" height="7.4" rx="1.4" fill="url(#carGlow)" opacity="0.55"/>
+      <rect x="11.6" y="5.9" width="2.6" height="1" rx="0.5" fill="#FFD98A"/>
+      <rect x="17.8" y="5.9" width="2.6" height="1" rx="0.5" fill="#FFD98A"/>
+      <rect x="11.5" y="27.4" width="2.6" height="1" rx="0.5" fill="#FF453A" opacity="0.9"/>
+      <rect x="17.9" y="27.4" width="2.6" height="1" rx="0.5" fill="#FF453A" opacity="0.9"/>
     </svg>`;
-  carFloatEl.appendChild(carWrapEl);
+  carSuspEl.appendChild(carWrapEl);
+  carFloatEl.appendChild(carSuspEl);
   carEl.appendChild(carFloatEl);
+  carShadowEl = carWrapEl.querySelector('#carShadow');
   carMarker = new maplibregl.Marker({
     element: carEl, anchor: 'center',
     rotationAlignment: 'map', pitchAlignment: 'map'
@@ -2169,21 +2218,25 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
   applyCarZoomScale();
 }
 
+let carZoomScale = 1;
 function applyCarZoomScale() {
   if (!carWrapEl) return;
   const z = map.getZoom();
-  const scale = Math.max(0.62, Math.min(1.35, 1 + (z - 13) * 0.14));
-  carWrapEl.style.transform = `scale(${scale.toFixed(3)})`;
+  carZoomScale = Math.max(0.62, Math.min(1.35, 1 + (z - 13) * 0.14));
+  // Si el auto está detenido (travel === null), tickCar no vuelve a
+  // escribir el transform, así que hay que aplicarlo aquí directamente
+  // para que el zoom siga escalando el ícono en reposo.
+  if (!travel) carWrapEl.style.transform = `scale(${carZoomScale.toFixed(3)})`;
 }
 map.on('zoom', applyCarZoomScale);
 
 /* ---------- E. MOVIMIENTO DEL VEHÍCULO: "GPS ping" + interpolación suave ----------
    En vez de recalcular la posición en cada frame de forma continua, se
    simula el comportamiento real de una app de movilidad: la posición
-   "oficial" del vehículo se actualiza cada 2.5-3s (como un ping de GPS),
-   y entre dos pings el marcador se desliza de forma interpolada (easing)
-   tanto en posición como en rumbo, de modo que el movimiento nunca se ve
-   brusco aunque el dato de origen llegue a saltos. */
+   "oficial" del vehículo se actualiza con cada nuevo tramo (como un ping
+   de GPS), y entre dos pings el marcador se desliza de forma interpolada
+   (easing) tanto en posición como en rumbo, de modo que el movimiento
+   nunca se ve brusco aunque el dato de origen llegue a saltos. */
 function bearing(p1, p2) {
   const [lon1, lat1] = [p1[0] * Math.PI / 180, p1[1] * Math.PI / 180];
   const [lon2, lat2] = [p2[0] * Math.PI / 180, p2[1] * Math.PI / 180];
@@ -2197,16 +2250,24 @@ function lerpAngle(a, b, t) {
   return (a + diff * t + 360) % 360;
 }
 
+const METERS_PER_DEGREE = 111320; // metros por grado de latitud (WGS84) — routeLen ya viene en grados-equivalentes
+const CAR_AVG_SPEED_MPS = 9.7; // ~35 km/h de crucero promedio urbano/rural
+
 let travelT = 0, travelDir = 1, lastBearingVal = 0, pingTimer = null, travel = null;
-let displayedBearing = 0;
+let displayedBearing = 0, prevDisplayedBearing = 0;
 
 /* Rumbo local en un punto t de la ruta, calculado sobre la propia polyline
    (tangente real de la calle en ese tramo), no sobre la cuerda entre dos
-   pings — así el auto siempre mira hacia donde realmente dobla la calle. */
-function bearingAtT(t) {
+   pings — así el auto siempre mira hacia donde realmente dobla la calle.
+   Además "mira" un poco más adelante en el sentido de avance (lookahead
+   > eps): el rumbo objetivo empieza a girar ANTES de llegar a la curva
+   en sí, así el vehículo anticipa el giro en vez de rotar de golpe justo
+   encima de la esquina. */
+function bearingAtT(t, dirSign) {
   const eps = 0.0015;
-  const t0 = Math.max(0, t - eps);
-  const t1 = Math.min(1, t + eps);
+  const lookahead = 0.012;
+  const t0 = Math.max(0, Math.min(1, t - eps * dirSign));
+  const t1 = Math.max(0, Math.min(1, t + Math.max(eps, lookahead) * dirSign));
   const p0 = pointAtT(t0);
   const p1 = pointAtT(t1);
   if (p0[0] === p1[0] && p0[1] === p1[1]) return lastBearingVal;
@@ -2219,8 +2280,35 @@ function pickNextTarget() {
   let nextT = travelT + step * travelDir;
   if (nextT >= 1) { nextT = 1; travelDir = -1; }
   else if (nextT <= 0) { nextT = 0; travelDir = 1; }
-  travel = { fromT: travelT, toT: nextT, tStart: performance.now(), duration: 4150 + Math.random() * 850 };
+
+  // Duración proporcional a la distancia REAL del tramo, a una velocidad
+  // de crucero constante (con variación orgánica ±15%) — antes era un
+  // tiempo fijo (~4.15-5s) sin relación con cuánto camino había que
+  // recorrer, así que un tramo largo se sentía "acelerar" de golpe y uno
+  // corto "frenar" de golpe. Con distancia/velocidad constante, el
+  // vehículo mantiene una sensación de ritmo pareja tramo a tramo.
+  const segDistM = Math.abs(nextT - travelT) * ROUTE_TOTAL * METERS_PER_DEGREE;
+  const speedMps = CAR_AVG_SPEED_MPS * (0.85 + Math.random() * 0.3);
+  const duration = Math.max(900, (segDistM / speedMps) * 1000);
+
+  travel = { fromT: travelT, toT: nextT, tStart: performance.now(), duration };
   travelT = nextT;
+
+  // Rebote de suspensión (ver @keyframes carSuspensionBounce): se
+  // dispara una sola vez por tramo nuevo. remove+reflow+add es la forma
+  // estándar de "reiniciar" una animación CSS ya usada.
+  if (carSuspEl) {
+    carSuspEl.classList.remove('bounce');
+    void carSuspEl.offsetWidth;
+    carSuspEl.classList.add('bounce');
+  }
+
+  clearTimeout(pingTimer);
+  // El siguiente tramo se agenda para arrancar justo cuando termina la
+  // interpolación de este — nunca antes (cortaría el movimiento a mitad
+  // de camino) ni después (el auto quedaría "congelado" esperando). Esa
+  // sincronía es lo que garantiza un recorrido sin saltos ni pausas.
+  pingTimer = setTimeout(pickNextTarget, duration);
 }
 
 /* El auto avanza SIEMPRE sobre la polyline real de la ruta (pointAtT camina
@@ -2233,32 +2321,48 @@ function tickCar(now) {
     const frac = Math.min(1, elapsed / travel.duration);
     const eased = easeInOut(frac);
     const t = travel.fromT + (travel.toT - travel.fromT) * eased;
+    const dirSign = travel.toT >= travel.fromT ? 1 : -1;
     const pos = pointAtT(t);
-    const brg = bearingAtT(t);
-    displayedBearing = lerpAngle(displayedBearing, brg, 0.12);
+    const brg = bearingAtT(t, dirSign);
+    displayedBearing = lerpAngle(displayedBearing, brg, 0.14);
     carMarker.setLngLat(pos);
     carMarker.setRotation(displayedBearing);
     lastBearingVal = brg;
+
+    // "Lean": ligera compresión lateral del cuerpo + sombra de contacto
+    // un poco más larga, proporcional a cuánto está girando el rumbo
+    // EN ESTE FRAME (velocidad angular real) — en tramos rectos queda en
+    // ~0 y no se nota nada; solo aparece, sutil, en curvas cerradas.
+    const angDelta = Math.abs(((displayedBearing - prevDisplayedBearing + 540) % 360) - 180);
+    prevDisplayedBearing = displayedBearing;
+    const leanFactor = Math.max(0, Math.min(1, angDelta / 1.4));
+    const leanScale = 1 - leanFactor * 0.045;
+    carWrapEl.style.transform = `scale(${carZoomScale.toFixed(3)}) scaleX(${leanScale.toFixed(3)})`;
+    if (carShadowEl) carShadowEl.setAttribute('rx', (6.4 + leanFactor * 1.1).toFixed(2));
   }
   requestAnimationFrame(tickCar);
 }
 requestAnimationFrame(tickCar);
 
 function restartTravel() {
-  travelT = 0; travelDir = 1; lastBearingVal = 0; displayedBearing = 0; travel = null;
-  clearInterval(pingTimer);
+  travelT = 0; travelDir = 1; lastBearingVal = 0; displayedBearing = 0; prevDisplayedBearing = 0; travel = null;
+  clearTimeout(pingTimer);
   pickNextTarget();
-  pingTimer = setInterval(pickNextTarget, 4150 + Math.random() * 850);
 }
 /* Deja el vehículo quieto en su posición actual (el punto de recogida),
    sin recorrer la ruta — se usa mientras el viaje todavía no fue
    solicitado/asignado. tickCar no mueve el marcador si `travel` es null,
    así que esto simplemente "pausa" el sistema de GPS-ping sin tocarlo. */
 function stopTravel() {
-  clearInterval(pingTimer);
+  clearTimeout(pingTimer);
   pingTimer = null;
   travel = null;
-  travelT = 0; travelDir = 1; lastBearingVal = 0; displayedBearing = 0;
+  travelT = 0; travelDir = 1; lastBearingVal = 0; displayedBearing = 0; prevDisplayedBearing = 0;
+  // Devuelve el cuerpo y la sombra a su estado neutro (sin lean) — si no,
+  // podría quedar "inclinado" congelado en caso de pararse a mitad de
+  // una curva.
+  if (carWrapEl) carWrapEl.style.transform = `scale(${carZoomScale.toFixed(3)})`;
+  if (carShadowEl) carShadowEl.setAttribute('rx', '6.4');
 }
 /* ---------- F. CÁMARA: encuadre automático + transiciones suaves ---------- */
 /* Curva de suavizado compartida para todos los movimientos de cámara: evita
