@@ -2189,6 +2189,14 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
      baja de la carrocería, y un reflejo muy tenue del verde-turquesa de
      la ruta sobre el bajo del auto — nada de esto cambia geometría ni
      colores base, solo agrega 2 capas de gradiente muy suaves encima. */
+  /* Rediseño (v5): mismo tamaño, silueta y color blanco de siempre —
+     solo se agregan capas vectoriales estáticas (sin JS nuevo, sin costo
+     de rendimiento) que simulan volumen 3D: pasos de rueda, neumático +
+     llanta diferenciados, líneas de panel muy sutiles, faros/focos con
+     degradado tipo vidrio + brillo puntual, realce de techo curvo, y un
+     rim light (borde claro) en nariz y cola. Es la misma técnica que usan
+     los íconos de vehículo de Uber/Apple Maps: un ícono plano con
+     sombreado bien resuelto, no un modelo 3D real. */
   carWrapEl.innerHTML = `<svg viewBox="0 0 34 38" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="carBody" x1="0" y1="0" x2="1" y2="0">
@@ -2216,6 +2224,21 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
           <stop offset="0%" stop-color="#6EE7B7" stop-opacity="0"/>
           <stop offset="100%" stop-color="#6EE7B7" stop-opacity="0.16"/>
         </linearGradient>
+        <radialGradient id="headlightGlass" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stop-color="#ffffff"/>
+          <stop offset="55%" stop-color="#eef6ff"/>
+          <stop offset="100%" stop-color="#c9def0"/>
+        </radialGradient>
+        <radialGradient id="taillightGlass" cx="35%" cy="30%" r="75%">
+          <stop offset="0%" stop-color="#ff8f8a"/>
+          <stop offset="60%" stop-color="#e0433f"/>
+          <stop offset="100%" stop-color="#a02824"/>
+        </radialGradient>
+        <linearGradient id="tireRim" x1="0" y1="0" x2="1" y2="0">
+          <stop offset="0%" stop-color="#050607"/>
+          <stop offset="50%" stop-color="#3a3f44"/>
+          <stop offset="100%" stop-color="#050607"/>
+        </linearGradient>
         <filter id="carSoftBlur" x="-80%" y="-80%" width="260%" height="260%">
           <feGaussianBlur stdDeviation="1.3"/>
         </filter>
@@ -2224,7 +2247,7 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
       <ellipse id="carShadowAmbient" cx="17.6" cy="32.7" rx="10.4" ry="3.5" fill="#000" opacity="0.12" filter="url(#carSoftBlur)"/>
       <ellipse id="carShadow" cx="17.2" cy="31.7" rx="6.6" ry="1.5" fill="#000" opacity="0.2" filter="url(#carSoftBlur)"/>
 
-      <!-- carrocería: silueta de sedán, angosta y estilizada, sin líneas internas (sin cambios) -->
+      <!-- carrocería: silueta de sedán, angosta y estilizada — SIN CAMBIOS respecto al diseño aprobado -->
       <path d="M17,1.4 C20.1,1.4 22.51,3.02 23.64,6.55
                C24.29,8.8 24.37,10.3 23.72,11.9
                C23.16,13.08 22.91,14.15 23.16,15.54
@@ -2239,37 +2262,61 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
                C11.49,3.02 13.9,1.4 17,1.4 Z"
             fill="url(#carBody)" stroke="#c9ced3" stroke-width="0.2" stroke-opacity="0.5"/>
 
-      <!-- ambient occlusion: sombreado propio muy sutil en la parte baja de la carrocería, da volumen -->
+      <!-- líneas de panel (puertas), casi imperceptibles: dan la lectura de carrocería con paneles reales -->
+      <path d="M11.2,13.2 C11.7,17 11.7,21.8 11.2,25.7" fill="none" stroke="#a9afb5" stroke-width="0.16" opacity="0.3"/>
+      <path d="M22.8,13.2 C22.3,17 22.3,21.8 22.8,25.7" fill="none" stroke="#a9afb5" stroke-width="0.16" opacity="0.3"/>
+
+      <!-- ambient occlusion: sombreado propio en la parte baja de la carrocería, da volumen -->
       <ellipse cx="17" cy="28.4" rx="6.4" ry="3.6" fill="url(#carAO)"/>
 
-      <!-- ruedas: sobre la carrocería, a caballo del borde, sutiles (sin cambios) -->
-      <rect x="9.5" y="9.4" width="1.6" height="4" rx="0.8" fill="#0c0f11" opacity="0.28"/>
-      <rect x="22.9" y="9.4" width="1.6" height="4" rx="0.8" fill="#0c0f11" opacity="0.28"/>
-      <rect x="9.3" y="22.8" width="1.6" height="4" rx="0.8" fill="#0c0f11" opacity="0.28"/>
-      <rect x="23.1" y="22.8" width="1.6" height="4" rx="0.8" fill="#0c0f11" opacity="0.28"/>
+      <!-- pasos de rueda: arco oscuro detrás de cada neumático, antes de dibujarlo -->
+      <ellipse cx="10.3" cy="11.2" rx="1.5" ry="2.6" fill="#0a0c0e" opacity="0.22"/>
+      <ellipse cx="23.7" cy="11.2" rx="1.5" ry="2.6" fill="#0a0c0e" opacity="0.22"/>
+      <ellipse cx="10.1" cy="24.6" rx="1.5" ry="2.6" fill="#0a0c0e" opacity="0.22"/>
+      <ellipse cx="23.9" cy="24.6" rx="1.5" ry="2.6" fill="#0a0c0e" opacity="0.22"/>
 
-      <!-- techo + parabrisas + luneta: forma negra reducida y afilada en los extremos (sin cambios) -->
+      <!-- ruedas: neumático (negro) + llanta (gris metálico) diferenciados, sobre el mismo lugar/tamaño de antes -->
+      <rect x="9.5" y="9.4" width="1.6" height="4" rx="0.8" fill="#08090a"/>
+      <rect x="9.78" y="9.95" width="1.04" height="2.9" rx="0.52" fill="url(#tireRim)"/>
+      <rect x="22.9" y="9.4" width="1.6" height="4" rx="0.8" fill="#08090a"/>
+      <rect x="23.18" y="9.95" width="1.04" height="2.9" rx="0.52" fill="url(#tireRim)"/>
+      <rect x="9.3" y="22.8" width="1.6" height="4" rx="0.8" fill="#08090a"/>
+      <rect x="9.58" y="23.35" width="1.04" height="2.9" rx="0.52" fill="url(#tireRim)"/>
+      <rect x="23.1" y="22.8" width="1.6" height="4" rx="0.8" fill="#08090a"/>
+      <rect x="23.38" y="23.35" width="1.04" height="2.9" rx="0.52" fill="url(#tireRim)"/>
+
+      <!-- techo + parabrisas + luneta: forma negra reducida — SIN CAMBIOS de tamaño/posición -->
       <path d="M13.1,9.2 L20.9,9.2 L21.7,12.6 L21.2,12.6 L21.2,20.6 L21.7,20.6 L20.9,24 L13.1,24 L12.3,20.6 L12.8,20.6 L12.8,12.6 L12.3,12.6 Z"
             fill="url(#carCabin)"/>
       <rect x="12.4" y="12.9" width="9.2" height="7.5" rx="1.9" fill="#0c1114"/>
+      <!-- realce de techo curvo: brillo suave arriba del cristal, sugiere superficie redondeada -->
+      <ellipse cx="17" cy="14.5" rx="3.4" ry="1.15" fill="#ffffff" opacity="0.12"/>
 
-      <!-- espejos: finos y discretos (sin cambios) -->
+      <!-- espejos: finos y discretos, con un pequeño brillo -->
       <rect x="9.9" y="13" width="1.1" height="2.2" rx="0.55" fill="#a3aab0" opacity="0.85"/>
       <rect x="23" y="13" width="1.1" height="2.2" rx="0.55" fill="#a3aab0" opacity="0.85"/>
+      <rect x="10.05" y="13.15" width="0.35" height="0.9" rx="0.17" fill="#ffffff" opacity="0.4"/>
+      <rect x="23.15" y="13.15" width="0.35" height="0.9" rx="0.17" fill="#ffffff" opacity="0.4"/>
 
       <!-- brillo diagonal sutil, una sola pasada (sin cambios) -->
       <rect x="15.2" y="2" width="2.6" height="27.4" rx="1.3" fill="url(#carSheen)" opacity="0.32"/>
 
-      <!-- reflejo turquesa de la ruta sobre el bajo del auto: muy tenue, integra el vehículo con el color de la ruta que tiene debajo -->
+      <!-- reflejo turquesa de la ruta sobre el bajo del auto -->
       <ellipse cx="17" cy="29.6" rx="5.2" ry="1" fill="url(#carRouteReflect)"/>
 
-      <!-- luces delanteras: blanco frío, sin glow, dentro del contorno (sin cambios) -->
-      <rect x="12.1" y="4.3" width="2" height="0.9" rx="0.45" fill="#eef6ff"/>
-      <rect x="19.9" y="4.3" width="2" height="0.9" rx="0.45" fill="#eef6ff"/>
+      <!-- rim light: borde claro en nariz y cola, sugiere luz cayendo desde arriba sobre el filo de la carrocería -->
+      <path d="M12.6,3.4 C13.9,2.1 15.4,1.5 17,1.5 C18.6,1.5 20.1,2.1 21.4,3.4" fill="none" stroke="#ffffff" stroke-width="0.32" opacity="0.5" stroke-linecap="round"/>
+      <path d="M12.2,29.7 C13.6,31 15.2,31.5 17,31.5 C18.8,31.5 20.4,31 21.8,29.7" fill="none" stroke="#ffffff" stroke-width="0.22" opacity="0.28" stroke-linecap="round"/>
 
-      <!-- luces traseras: rojo, sin glow, dentro del contorno (sin cambios) -->
-      <rect x="11.3" y="27.5" width="2" height="0.85" rx="0.42" fill="#e0433f" opacity="0.9"/>
-      <rect x="20.7" y="27.5" width="2" height="0.85" rx="0.42" fill="#e0433f" opacity="0.9"/>
+      <!-- luces delanteras: efecto de vidrio (degradado radial) + brillo puntual, mismo tamaño/posición que antes -->
+      <rect x="12.1" y="4.3" width="2" height="0.9" rx="0.45" fill="url(#headlightGlass)"/>
+      <circle cx="12.55" cy="4.55" r="0.2" fill="#ffffff" opacity="0.95"/>
+      <rect x="19.9" y="4.3" width="2" height="0.9" rx="0.45" fill="url(#headlightGlass)"/>
+      <circle cx="20.35" cy="4.55" r="0.2" fill="#ffffff" opacity="0.95"/>
+
+      <!-- luces traseras: mismo tratamiento de vidrio -->
+      <rect x="11.3" y="27.5" width="2" height="0.85" rx="0.42" fill="url(#taillightGlass)"/>
+      <rect x="20.7" y="27.5" width="2" height="0.85" rx="0.42" fill="url(#taillightGlass)"/>
     </svg>`;
   carSuspEl.appendChild(carWrapEl);
   carFloatEl.appendChild(carSuspEl);
