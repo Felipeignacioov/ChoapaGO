@@ -2183,6 +2183,12 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
      larga, techo/cristales reducidos para que la carrocería blanca sea
      protagonista, guardabarros y espejos más finos. Icono de lujo, no
      modelo 3D — pocas formas, muy definidas. */
+  /* Integración visual (v4, sin tocar forma/color/silueta de la v3):
+     sombra más difusa y separada del suelo, bordes con menos contraste
+     (ya no se ven "recortados"), ambient occlusion sutil en la parte
+     baja de la carrocería, y un reflejo muy tenue del verde-turquesa de
+     la ruta sobre el bajo del auto — nada de esto cambia geometría ni
+     colores base, solo agrega 2 capas de gradiente muy suaves encima. */
   carWrapEl.innerHTML = `<svg viewBox="0 0 34 38" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="carBody" x1="0" y1="0" x2="1" y2="0">
@@ -2202,15 +2208,23 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
           <stop offset="42%" stop-color="#ffffff" stop-opacity="0.55"/>
           <stop offset="100%" stop-color="#ffffff" stop-opacity="0"/>
         </linearGradient>
+        <linearGradient id="carAO" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#000000" stop-opacity="0"/>
+          <stop offset="100%" stop-color="#000000" stop-opacity="0.2"/>
+        </linearGradient>
+        <linearGradient id="carRouteReflect" x1="0" y1="0" x2="0" y2="1">
+          <stop offset="0%" stop-color="#6EE7B7" stop-opacity="0"/>
+          <stop offset="100%" stop-color="#6EE7B7" stop-opacity="0.16"/>
+        </linearGradient>
         <filter id="carSoftBlur" x="-80%" y="-80%" width="260%" height="260%">
-          <feGaussianBlur stdDeviation="0.9"/>
+          <feGaussianBlur stdDeviation="1.3"/>
         </filter>
       </defs>
 
-      <ellipse id="carShadowAmbient" cx="17.6" cy="32.6" rx="9.4" ry="3.1" fill="#000" opacity="0.16" filter="url(#carSoftBlur)"/>
-      <ellipse id="carShadow" cx="17.2" cy="31.6" rx="7.2" ry="1.8" fill="#000" opacity="0.34"/>
+      <ellipse id="carShadowAmbient" cx="17.6" cy="32.7" rx="10.4" ry="3.5" fill="#000" opacity="0.12" filter="url(#carSoftBlur)"/>
+      <ellipse id="carShadow" cx="17.2" cy="31.7" rx="6.6" ry="1.5" fill="#000" opacity="0.2" filter="url(#carSoftBlur)"/>
 
-      <!-- carrocería: silueta de sedán, angosta y estilizada, sin líneas internas -->
+      <!-- carrocería: silueta de sedán, angosta y estilizada, sin líneas internas (sin cambios) -->
       <path d="M17,1.4 C20.1,1.4 22.51,3.02 23.64,6.55
                C24.29,8.8 24.37,10.3 23.72,11.9
                C23.16,13.08 22.91,14.15 23.16,15.54
@@ -2223,31 +2237,37 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
                C11.09,14.15 10.84,13.08 10.28,11.9
                C9.63,10.3 9.71,8.8 10.36,6.55
                C11.49,3.02 13.9,1.4 17,1.4 Z"
-            fill="url(#carBody)" stroke="#b7bcc2" stroke-width="0.28"/>
+            fill="url(#carBody)" stroke="#c9ced3" stroke-width="0.2" stroke-opacity="0.5"/>
 
-      <!-- ruedas: sobre la carrocería, a caballo del borde, sutiles -->
+      <!-- ambient occlusion: sombreado propio muy sutil en la parte baja de la carrocería, da volumen -->
+      <ellipse cx="17" cy="28.4" rx="6.4" ry="3.6" fill="url(#carAO)"/>
+
+      <!-- ruedas: sobre la carrocería, a caballo del borde, sutiles (sin cambios) -->
       <rect x="9.5" y="9.4" width="1.6" height="4" rx="0.8" fill="#0c0f11" opacity="0.28"/>
       <rect x="22.9" y="9.4" width="1.6" height="4" rx="0.8" fill="#0c0f11" opacity="0.28"/>
       <rect x="9.3" y="22.8" width="1.6" height="4" rx="0.8" fill="#0c0f11" opacity="0.28"/>
       <rect x="23.1" y="22.8" width="1.6" height="4" rx="0.8" fill="#0c0f11" opacity="0.28"/>
 
-      <!-- techo + parabrisas + luneta: forma negra reducida y afilada en los extremos -->
+      <!-- techo + parabrisas + luneta: forma negra reducida y afilada en los extremos (sin cambios) -->
       <path d="M13.1,9.2 L20.9,9.2 L21.7,12.6 L21.2,12.6 L21.2,20.6 L21.7,20.6 L20.9,24 L13.1,24 L12.3,20.6 L12.8,20.6 L12.8,12.6 L12.3,12.6 Z"
             fill="url(#carCabin)"/>
       <rect x="12.4" y="12.9" width="9.2" height="7.5" rx="1.9" fill="#0c1114"/>
 
-      <!-- espejos: finos y discretos -->
+      <!-- espejos: finos y discretos (sin cambios) -->
       <rect x="9.9" y="13" width="1.1" height="2.2" rx="0.55" fill="#a3aab0" opacity="0.85"/>
       <rect x="23" y="13" width="1.1" height="2.2" rx="0.55" fill="#a3aab0" opacity="0.85"/>
 
-      <!-- brillo diagonal sutil, una sola pasada -->
+      <!-- brillo diagonal sutil, una sola pasada (sin cambios) -->
       <rect x="15.2" y="2" width="2.6" height="27.4" rx="1.3" fill="url(#carSheen)" opacity="0.32"/>
 
-      <!-- luces delanteras: blanco frío, sin glow, dentro del contorno -->
+      <!-- reflejo turquesa de la ruta sobre el bajo del auto: muy tenue, integra el vehículo con el color de la ruta que tiene debajo -->
+      <ellipse cx="17" cy="29.6" rx="5.2" ry="1" fill="url(#carRouteReflect)"/>
+
+      <!-- luces delanteras: blanco frío, sin glow, dentro del contorno (sin cambios) -->
       <rect x="12.1" y="4.3" width="2" height="0.9" rx="0.45" fill="#eef6ff"/>
       <rect x="19.9" y="4.3" width="2" height="0.9" rx="0.45" fill="#eef6ff"/>
 
-      <!-- luces traseras: rojo, sin glow, dentro del contorno -->
+      <!-- luces traseras: rojo, sin glow, dentro del contorno (sin cambios) -->
       <rect x="11.3" y="27.5" width="2" height="0.85" rx="0.42" fill="#e0433f" opacity="0.9"/>
       <rect x="20.7" y="27.5" width="2" height="0.85" rx="0.42" fill="#e0433f" opacity="0.9"/>
     </svg>`;
@@ -2267,10 +2287,15 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
 let carZoomScale = 1;
 function applyCarZoomScale() {
   if (!carWrapEl) return;
-  const z = map.getZoom();
-  carZoomScale = Math.max(0.62, Math.min(1.35, 1 + (z - 13) * 0.14));
+  // Escala del vehículo FIJA — antes crecía hasta 1.35x con el zoom, lo
+  // que se sentía "demasiado grande" en el pedido original; ahora el
+  // auto siempre se ve del mismo tamaño, sin importar cuánto acerques o
+  // alejes el mapa. Los halos de sombra (más abajo) sí se siguen
+  // ajustando levemente con el zoom — eso es solo profundidad ambiental,
+  // no el tamaño del auto en sí.
+  carZoomScale = 1;
   if (!travel) carWrapEl.style.transform = `scale(${carZoomScale.toFixed(3)})`;
-
+  const z = map.getZoom();
   const zNorm = Math.max(0, Math.min(1, (z - 12) / 6));
   if (carShadowAmbientEl) {
     carShadowAmbientEl.setAttribute('opacity', (0.12 + zNorm * 0.09).toFixed(2));
