@@ -1537,8 +1537,10 @@ function selectPOI(feature) {
 /* ---------- Jerarquía visual con ruta activa (solo opacidad; no toca
    selección, tamaños por zoom, ni ninguna otra lógica existente) ---------- */
 let routeIsActive = false;
-let POI_ICON_OPACITY_BASE = null;
-let POI_TEXT_OPACITY_BASE = null;
+let POI_ICON_OPACITY_NORMAL = null;
+let POI_ICON_OPACITY_DIMMED = null;
+let POI_TEXT_OPACITY_NORMAL = null;
+let POI_TEXT_OPACITY_DIMMED = null;
 
 function addPOILayer(rawPois) {
  const data = poisToGeoJSON(declutterPOIsByZone(rawPois));
@@ -1597,8 +1599,24 @@ function addPOILayer(rawPois) {
     13.5, ['match', ['get', 'category'], ESSENTIAL_POI, 1, 0],
     15.2, 1
   ];
-  POI_ICON_OPACITY_BASE = iconOpacityExpr;
-  POI_TEXT_OPACITY_BASE = textOpacityExpr;
+  /* En vez de guardar la expresión "base" y multiplicarla en tiempo real
+     con ['*', expr, factor] (lo que rompía todo, porque expr ya es una
+     expresión de zoom), se precalculan DOS expresiones completas y
+     válidas — normal y atenuada, con el factor ya "horneado" en cada
+     parada — y luego solo se elige entre una u otra. */
+  POI_ICON_OPACITY_NORMAL = iconOpacityExpr;
+  POI_ICON_OPACITY_DIMMED = ['interpolate', ['linear'], ['zoom'],
+    11,   ['*', ['case', isEssentialSize, 0.75, 0], POI_DIM_FACTOR],
+    12.8, ['*', ['case', isEssentialSize, 0.8,  0], POI_DIM_FACTOR],
+    13.5, ['*', ['case', isEssentialSize, 0.85, 0.5], POI_DIM_FACTOR],
+    15.2, ['*', ['case', isEssentialSize, 0.88, 0.85], POI_DIM_FACTOR]
+  ];
+  POI_TEXT_OPACITY_NORMAL = textOpacityExpr;
+  POI_TEXT_OPACITY_DIMMED = ['step', ['zoom'],
+    0,
+    13.5, ['*', ['match', ['get', 'category'], ESSENTIAL_POI, 1, 0], POI_DIM_FACTOR],
+    15.2, POI_DIM_FACTOR
+  ];
 
   const textLayout = {
     'text-field': ['get', 'name'],
@@ -1691,12 +1709,10 @@ function addPOILayer(rawPois) {
    Llamado con `false`, los POI recuperan su visibilidad normal. */
 const POI_DIM_FACTOR = 0.35;
 function setPOIRouteEmphasis(active) {
-  if (!map.getLayer('poi-layer') || !POI_ICON_OPACITY_BASE || !POI_TEXT_OPACITY_BASE) return;
-  const factor = active ? POI_DIM_FACTOR : 1;
-  map.setPaintProperty('poi-layer', 'icon-opacity', ['*', POI_ICON_OPACITY_BASE, factor]);
-  map.setPaintProperty('poi-layer', 'text-opacity', ['*', POI_TEXT_OPACITY_BASE, factor]);
+  if (!map.getLayer('poi-layer') || !POI_ICON_OPACITY_NORMAL || !POI_TEXT_OPACITY_NORMAL) return;
+  map.setPaintProperty('poi-layer', 'icon-opacity', active ? POI_ICON_OPACITY_DIMMED : POI_ICON_OPACITY_NORMAL);
+  map.setPaintProperty('poi-layer', 'text-opacity', active ? POI_TEXT_OPACITY_DIMMED : POI_TEXT_OPACITY_NORMAL);
 }
-
 /* POI verificados manualmente (coordenada real confirmada por el
    usuario, vía Google Maps u OpenStreetMap) que NO dependen de que
    Overpass los tenga catalogados con ese nombre exacto. A diferencia de
@@ -2319,6 +2335,10 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
            hacia abajo-derecha y en tono oscuro, oculta detrás del cuerpo blanco — solo
            asoma un borde grueso en ese lado, que se lee como el costado del vehículo
            (el mismo recurso que usan los íconos "extruidos" de mapas premium). -->
+     <!-- Pared lateral: desplazamiento MUCHO mayor que el intento anterior (que era
+           menor a 1px en pantalla, invisible) + color oscuro con contraste real —
+           ahora sí se asoma un borde grueso visible en un costado, leído como el
+           grosor/altura real del vehículo. -->
       <path d="M17,1.8
                C19.42,1.8 21.37,3.1 22.21,5.8
                C22.67,7.3 22.72,8.6 22.30,9.8
@@ -2334,7 +2354,7 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
                L11.70,9.8
                C11.28,8.6 11.33,7.3 11.79,5.8
                C12.63,3.1 14.58,1.8 17,1.8 Z"
-            fill="#9199a0" opacity="0.6" transform="translate(0.6,0.95)"/>
+            fill="#3d434a" opacity="0.88" transform="translate(1.9,2.5)"/>
 
       <!-- carrocería: 6-8% más angosta que la versión anterior, mismo largo -->
       <path d="M17,1.8
@@ -2396,7 +2416,7 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
       <!-- brillo diagonal -->
       <rect x="15.33" y="2" width="2.42" height="27.4" rx="1.21" fill="url(#carSheen)" opacity="0.32"/>
       <!-- highlight puntual angosto: sugiere una superficie curva reflejando luz directa, no plana -->
-      <rect x="16.2" y="3.5" width="0.7" height="9" rx="0.35" fill="#ffffff" opacity="0.28"/>
+      <rect x="16" y="3.2" width="1.1" height="10" rx="0.55" fill="#ffffff" opacity="0.4"/>
 
       <!-- reflejo turquesa de la ruta -->
       <ellipse cx="17" cy="29.6" rx="4.84" ry="1" fill="url(#carRouteReflect)"/>
