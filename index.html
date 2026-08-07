@@ -1117,7 +1117,11 @@ const POI_ICONS = {
   /* Sede vecinal / junta de vecinos (amenity=community_centre en OSM). */
   community: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 11l9-7 9 7" stroke-linecap="round" stroke-linejoin="round"/><path d="M5 10v10h14V10" stroke-linejoin="round"/><path d="M9 20v-6h6v6" stroke-linejoin="round"/></svg>',
   /* Estación de servicio (amenity=fuel en OSM). */
-  fuel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15" stroke-linejoin="round"/><path d="M4 21h10M14 9h2a2 2 0 0 1 2 2v4a1.5 1.5 0 0 0 3 0V8l-2-2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 6h4" stroke-linecap="round"/></svg>'
+  fuel: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 21V6a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v15" stroke-linecap="round" stroke-linejoin="round"/><path d="M4 21h10M14 9h2a2 2 0 0 1 2 2v4a1.5 1.5 0 0 0 3 0V8l-2-2" stroke-linecap="round" stroke-linejoin="round"/><path d="M7 6h4" stroke-linecap="round"/></svg>',
+  /* Punto de encuentro verificado: mismo pin de "locality" pero con un
+     check adentro en vez del punto — comunica "lugar confirmado por
+     ChoapaGO", no un dato crudo de OSM. */
+  meetpoint: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11z" stroke-linejoin="round"/><path d="M9 10.2l2 2 4-4.2" stroke-linecap="round" stroke-linejoin="round"/></svg>'
 };
 
 /* Respaldo mínimo (solo entra en juego si Overpass no responde). Se
@@ -1386,23 +1390,29 @@ function poiIconInnerMarkup(category) {
 function buildPoiMarkerSVG(category, active) {
   const size = 64;
   const inner = poiIconInnerMarkup(category);
-  const stroke = active ? '#6EE7B7' : 'rgba(16,185,129,0.5)';
-  const strokeW = active ? 2.6 : 1.8;
-  const bg1 = active ? 'rgba(8,90,68,0.95)' : 'rgba(20,26,22,0.92)';
-  const bg2 = active ? 'rgba(5,46,35,0.95)' : 'rgba(11,15,13,0.92)';
+  // Los puntos de encuentro verificados llevan un tratamiento propio
+  // (anillo turquesa + insignia de check) para distinguirse a simple
+  // vista de un POI genérico de OpenStreetMap.
+  const isVerified = category === 'meetpoint';
+  const stroke = active ? '#6EE7B7' : (isVerified ? '#2DD4BF' : 'rgba(16,185,129,0.5)');
+  const strokeW = active ? 2.6 : (isVerified ? 2.2 : 1.8);
+  const bg1 = active ? 'rgba(8,90,68,0.95)' : (isVerified ? 'rgba(8,52,50,0.95)' : 'rgba(20,26,22,0.92)');
+  const bg2 = active ? 'rgba(5,46,35,0.95)' : (isVerified ? 'rgba(5,34,33,0.95)' : 'rgba(11,15,13,0.92)');
   /* Verde esmeralda un punto más apagado en el estado normal (el
      seleccionado se mantiene vívido para que siga destacando). */
-  const glyphColor = active ? '#10B981' : '#0EA173';
-  const glow = active ? `<circle cx="32" cy="32" r="30" fill="none" stroke="#10B981" stroke-width="1.4" opacity="0.5"/>` : '';
+  const glyphColor = active ? '#10B981' : (isVerified ? '#5EEAD4' : '#0EA173');
+  const glow = active ? `<circle cx="32" cy="32" r="30" fill="none" stroke="#10B981" stroke-width="1.4" opacity="0.5"/>` : (isVerified ? `<circle cx="32" cy="32" r="29" fill="none" stroke="#2DD4BF" stroke-width="1" opacity="0.4"/>` : '');
+  const verifiedBadge = isVerified ? `<circle cx="48" cy="48" r="9" fill="#0A1613" stroke="#2DD4BF" stroke-width="1.6"/><path d="M44.2 48.2l2.6 2.6 4.8-5.2" fill="none" stroke="#2DD4BF" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"/>` : '';
   return `<svg xmlns="http://www.w3.org/2000/svg" width="${size}" height="${size}" viewBox="0 0 ${size} ${size}">
     <defs>
       <linearGradient id="poiBg-${category}-${active ? 'a' : 'n'}" x1="0" y1="0" x2="0" y2="1">
         <stop offset="0" stop-color="${bg1}"/><stop offset="1" stop-color="${bg2}"/>
       </linearGradient>
     </defs>
-    ${glow}
+   ${glow}
     <circle cx="32" cy="32" r="26" fill="url(#poiBg-${category}-${active ? 'a' : 'n'})" stroke="${stroke}" stroke-width="${strokeW}"/>
     <g transform="translate(18,18) scale(1.17)" fill="none" stroke="${glyphColor}" style="color:${glyphColor}" opacity="${active ? 1 : 0.9}">${inner}</g>
+    ${verifiedBadge}
   </svg>`;
 }
 
@@ -1539,7 +1549,7 @@ function addPOILayer(rawPois) {
      interpolate completos, se usa UN solo interpolate de zoom y, en cada
      parada, un "match" que decide el tamaño según la categoría. */
   const isEssentialSize = ['match', ['get', 'category'],
-    ['health', 'government', 'transport', 'landmark', 'firestation', 'church', 'school', 'locality', 'community', 'fuel', 'stadium'], true, false
+    ['health', 'government', 'transport', 'landmark', 'firestation', 'church', 'school', 'locality', 'community', 'fuel', 'stadium', 'meetpoint'], true, false
   ];
   const sizeExpr = ['interpolate', ['linear'], ['zoom'],
     11, ['case', isEssentialSize, 0.46, 0.36],
@@ -1565,7 +1575,7 @@ function addPOILayer(rawPois) {
      referentes en localidades rurales (El Tambo, Tahuinco) — ahí no hay
      "ruido" de otros POI con los que compitan, así que conviene que su
      nombre aparezca ya en zoom medio. */
-  const ESSENTIAL_POI = ['health', 'government', 'transport', 'landmark', 'firestation', 'church', 'school', 'locality', 'community', 'fuel', 'stadium'];
+  const ESSENTIAL_POI = ['health', 'government', 'transport', 'landmark', 'firestation', 'church', 'school', 'locality', 'community', 'fuel', 'stadium', 'meetpoint'];
   const iconOpacityExpr = ['interpolate', ['linear'], ['zoom'],
     11,   ['case', isEssentialSize, 0.75, 0],
     12.8, ['case', isEssentialSize, 0.8,  0],
@@ -1697,7 +1707,11 @@ const MANUAL_VERIFIED_POIS = [
   { name: 'Gimnasio Municipal',         category: 'gym',        coord: [-70.9637866171898, -31.77649416068062] },
   { name: 'Colliguay',                  category: 'locality',   coord: GEO.colliguay },
   { name: 'El Tambo',                   category: 'locality',   coord: GEO.elTambo },
-  { name: 'Chalinga',                   category: 'locality',   coord: GEO.chalinga }
+  { name: 'Chalinga',                   category: 'locality',   coord: GEO.chalinga },
+  // --- Puntos de encuentro verificados (primera tanda) ---
+  { name: 'Cruce Colliguay',                  category: 'meetpoint', coord: [-71.03468001210653, -31.797712078615138] },
+  { name: 'Entrada a Cerro La Cruz',          category: 'meetpoint', coord: [-70.96003833805636, -31.769994473796096] },
+  { name: 'Cancha de Pádel',                  category: 'meetpoint', coord: [-70.9878054556628, -31.784736430348612] }
 ];
 
 function mergeManualVerifiedPois(pois) {
