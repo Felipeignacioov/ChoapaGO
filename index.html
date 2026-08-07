@@ -316,7 +316,7 @@ body.low-end .status-strip, body.low-end .save-suggest{
 }
 @keyframes cardEnterLeft{ from{ opacity:0; transform:translateX(-14px) scale(.98);} to{ opacity:1; transform:translateX(0) scale(1);} }
 .rc-body{ display:contents; }
-.rc-head h1{ font-family:'Inter',sans-serif; font-size:13.5px; font-weight:600; letter-spacing:-0.011em; line-height:1.25; color:var(--text-secondary); }
+.rc-head h1{ font-family:'Inter',sans-serif; font-size:13.5px; font-weight:500; letter-spacing:-0.011em; line-height:1.25; color:var(--text-secondary); }
 .rc-head .sub{ color:var(--text-tertiary); font-size:10px; margin-top:2px; letter-spacing:.008em; line-height:1.4; }
 .fields{ margin-top:14px; position:relative; transition: max-height .4s cubic-bezier(.16,1,.3,1), opacity .3s ease, margin-top .4s ease; }
 .field{ display:flex; align-items:center; gap:10px; padding:11px 12px; background:rgba(255,255,255,0.025); border:1px solid var(--border-glass); transition: background .2s ease, border-color .2s ease; }
@@ -327,7 +327,7 @@ body.low-end .status-strip, body.low-end .save-suggest{
 .dot.o{ background:var(--accent-2); box-shadow:0 0 6px rgba(16,185,129,0.7); }
 .dot.d{ background:#fff; border-radius:2px; }
 .field-text{ line-height:1.2; }
-.field-text .label{ font-size:8.5px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.07em; font-weight:600; }
+.field-text .label{ font-size:8.5px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.07em; font-weight:500; }
 .field-text .value{ font-size:12.5px; font-weight:600; margin-top:1px; }
 .swap-btn{ position:absolute; right:9px; top:50%; transform:translateY(-50%); width:26px; height:26px; border-radius:50%; background:#12171d; border:1px solid var(--border-glass-strong); display:flex; align-items:center; justify-content:center; cursor:pointer; color:var(--text-secondary); transition: color .25s ease, border-color .25s ease, transform .25s ease; }
 .swap-btn:active{ color:var(--accent-2); border-color:rgba(5,150,105,.4); transform:translateY(-50%) rotate(180deg) scale(.92); }
@@ -336,7 +336,7 @@ body.low-end .status-strip, body.low-end .save-suggest{
 }
 .swap-btn svg{ width:12px; height:12px; }
 .service-row{ margin-top:13px; transition: max-height .4s cubic-bezier(.16,1,.3,1), opacity .3s ease, margin-top .4s ease; }
-.service-row .row-label{ font-size:9px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.07em; margin-bottom:7px; font-weight:600; }
+.service-row .row-label{ font-size:9px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.07em; margin-bottom:7px; font-weight:500; }
 .service-toggle{ display:flex; gap:6px; }
 .service-opt{ flex:1; display:flex; flex-direction:column; align-items:center; gap:4px; padding:9px 6px; border-radius:var(--radius-sm); border:1px solid var(--border-glass); background:rgba(255,255,255,0.015); cursor:pointer; transition: border-color .2s ease, background .2s ease, color .2s ease, transform .12s ease; font-size:11px; font-weight:600; color:var(--text-secondary); }
 .service-opt svg{ width:15px; height:15px; opacity:.65; }
@@ -354,8 +354,8 @@ body.low-end .status-strip, body.low-end .save-suggest{
   box-shadow: 0 8px 18px rgba(0,0,0,0.2);
   transition: max-height .4s cubic-bezier(.16,1,.3,1), opacity .3s ease, margin-top .4s ease, padding .4s ease;
 }
-.estimate-card .elabel{ font-size:8.5px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.07em; font-weight:600; }
-.estimate-card .evalue{ font-size:15px; font-weight:700; margin-top:2px; font-variant-numeric:tabular-nums; letter-spacing:-0.01em; }
+.estimate-card .elabel{ font-size:8.5px; color:var(--text-tertiary); text-transform:uppercase; letter-spacing:.07em; font-weight:500; }
+.estimate-card .evalue{ font-size:16.5px; font-weight:700; margin-top:2px; font-variant-numeric:tabular-nums; letter-spacing:-0.015em; }
 .estimate-card.price{ border-color:rgba(5,150,105,0.16); }
 .estimate-card.price .evalue{ color:var(--accent-2); text-shadow:0 0 10px rgba(16,185,129,0.22); }
 
@@ -367,7 +367,7 @@ color:#06120D; font-weight:800; font-size:14.5px; letter-spacing:.01em;
 display:flex; align-items:center; justify-content:center; gap:8px;
 position:relative; overflow:hidden; isolation:isolate;
 transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, border-color .3s ease, background .3s ease, color .3s ease;
-box-shadow:0 10px 26px rgba(16,185,129,0.28), inset 0 1px 0 rgba(255,255,255,0.18);
+box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.14);
 }
 /* Brillo sutil que recorre el botón cada ~7s en reposo — se apaga por
    completo en loading/done/enroute para no competir con el spinner ni
@@ -428,7 +428,7 @@ box-shadow:0 10px 26px rgba(16,185,129,0.28), inset 0 1px 0 rgba(255,255,255,0.1
 /* campos como inputs reales + autocompletado restringido a ubicaciones válidas del área */
 .field{ position:relative; }
 .field-text{ flex:1; min-width:0; }
-.field-text input{ width:100%; background:transparent; border:none; outline:none; color:var(--text-primary); font-size:12.5px; font-weight:600; font-family:inherit; padding:0; }
+.field-text input{ width:100%; background:transparent; border:none; outline:none; color:var(--text-primary); font-size:12.5px; font-weight:700; font-family:inherit; padding:0; letter-spacing:-0.005em; }
 .field-text input::placeholder{ color:var(--text-tertiary); font-weight:500; }
 .field.locked input{ color:var(--text-primary); }
 .field.invalid input{ color:#ff8a80; }
@@ -780,9 +780,9 @@ box-shadow:0 10px 26px rgba(16,185,129,0.28), inset 0 1px 0 rgba(255,255,255,0.1
   .rc-head .sub{ display:none; }
 
   .rc-mini-route{
-    display:flex; align-items:center; gap:6px; margin-top:6px; font-size:13px; font-weight:600;
+    display:flex; align-items:center; gap:6px; margin-top:6px; font-size:13.5px; font-weight:700;
     color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis;
-    letter-spacing:.005em;
+    letter-spacing:-0.006em;
   }
   .request-card[data-sheet="expanded"] .rc-mini-route{ display:none; }
 
