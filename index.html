@@ -1682,11 +1682,22 @@ function setPOIRouteEmphasis(active) {
    Overpass los tenga catalogados con ese nombre exacto. A diferencia de
    POI_PLACES (que es solo un respaldo de emergencia si Overpass falla
    del todo), estos SIEMPRE se agregan al resultado — si no, en el uso
-   normal (Overpass respondiendo bien) nunca llegarían a verse. */
+   normal (Overpass respondiendo bien) nunca llegarían a verse.
+
+   Las tres localidades rurales de abajo (Colliguay, El Tambo, Chalinga)
+   son la red de seguridad real de la zona rural: son "essential" en el
+   sistema de zoom (siempre visibles, incluso alejado) y usan las mismas
+   coordenadas ya verificadas que GEO.colliguay/elTambo/chalinga (las que
+   usa el buscador). Antes de esto, si los 3 espejos de Overpass fallaban
+   a la vez, el mapa rural se quedaba sin ninguna localidad marcada —
+   solo Salamanca centro (vía POI_PLACES) seguía teniendo pines. */
 const MANUAL_VERIFIED_POIS = [
   { name: 'Colegio Tahuinco',           category: 'school',     coord: [-71.0571533, -31.7906912] },
   { name: 'Almacén Flores, Colliguay',  category: 'market',     coord: [-71.016759, -31.8236639] },
-  { name: 'Gimnasio Municipal',         category: 'gym',        coord: [-70.9637866171898, -31.77649416068062] }
+  { name: 'Gimnasio Municipal',         category: 'gym',        coord: [-70.9637866171898, -31.77649416068062] },
+  { name: 'Colliguay',                  category: 'locality',   coord: GEO.colliguay },
+  { name: 'El Tambo',                   category: 'locality',   coord: GEO.elTambo },
+  { name: 'Chalinga',                   category: 'locality',   coord: GEO.chalinga }
 ];
 
 function mergeManualVerifiedPois(pois) {
