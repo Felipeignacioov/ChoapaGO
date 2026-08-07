@@ -152,13 +152,13 @@ button, a, .icon-btn, .help-pill, .swap-btn, .service-opt, .contact-btn, .peek-c
   0%{ transform:scale(0.3); opacity:0.85; }
   100%{ transform:scale(3.4); opacity:0; }
 }
-.pin-origin{ width:16px; height:16px; position:relative; filter: drop-shadow(0 2px 3px rgba(0,0,0,0.35)); }
-.pin-origin .core{ width:100%; height:100%; border-radius:50%; background:#0B0F14; border:2px solid var(--accent-2); box-shadow:0 0 8px rgba(16,185,129,0.55); }
+.pin-origin{ width:16px; height:16px; position:relative; filter: drop-shadow(0 2.5px 4px rgba(0,0,0,0.45)); }
+.pin-origin .core{ width:100%; height:100%; border-radius:50%; background:#0B0F14; border:2px solid var(--accent-2); box-shadow:0 0 10px rgba(16,185,129,0.62); }
 .pin-origin .core::after{ content:''; position:absolute; inset:4px; border-radius:50%; background:var(--accent-2); }
 .pin-origin .ring{ position:absolute; inset:-10px; border-radius:50%; border:1.5px solid var(--accent-2); opacity:0; animation: pinPulse 2.8s ease-out infinite; will-change: transform, opacity; }
 @keyframes pinPulse{ 0%{ transform:scale(.4); opacity:.4; } 100%{ transform:scale(2.1); opacity:0; } }
 
-.pin-dest{ width:19px; height:25px; position:relative; transform:translateY(-12.5px); filter: drop-shadow(0 3px 5px rgba(0,0,0,0.45)); }
+.pin-dest{ width:19px; height:25px; position:relative; transform:translateY(-12.5px); filter: drop-shadow(0 4px 7px rgba(0,0,0,0.55)); }
 .pin-dest svg{ width:100%; height:100%; position:relative; z-index:2; }
 .pin-dest .dest-halo{ position:absolute; left:50%; bottom:1px; width:26px; height:26px; margin-left:-13px; border-radius:50%; background:radial-gradient(circle, rgba(16,185,129,0.4) 0%, rgba(16,185,129,0) 70%); z-index:1; animation: destPulse 3.2s ease-out infinite; will-change: transform, opacity; }
 @keyframes destPulse{ 0%{ transform:scale(.55); opacity:.6;} 70%{ opacity:.1;} 100%{ transform:scale(1.7); opacity:0;} }
@@ -1562,11 +1562,11 @@ function addPOILayer(rawPois) {
     ['health', 'government', 'transport', 'landmark', 'firestation', 'church', 'school', 'locality', 'community', 'fuel', 'stadium', 'meetpoint'], true, false
   ];
   const sizeExpr = ['interpolate', ['linear'], ['zoom'],
-    11, ['case', isEssentialSize, 0.46, 0.36],
-    14, ['case', isEssentialSize, 0.6, 0.48],
-    17, ['case', isEssentialSize, 0.84, 0.68]
+    11, ['case', isEssentialSize, 0.40, 0.32],
+    14, ['case', isEssentialSize, 0.53, 0.42],
+    17, ['case', isEssentialSize, 0.74, 0.60]
   ];
-  const sizeExprActive = ['interpolate', ['linear'], ['zoom'], 11, 0.58, 14, 0.74, 17, 0.98];
+  const sizeExprActive = ['interpolate', ['linear'], ['zoom'], 11, 0.52, 14, 0.67, 17, 0.88];
   /* Con la cobertura ampliada a toda la zona operacional (antes prácticamente
      solo el centro), a escala baja ya no alcanza con atenuar apenas los
      íconos secundarios (banco, farmacia, supermercado): ahora se OCULTAN
@@ -2055,6 +2055,15 @@ function addRouteLayers() {
   /* Efecto de doble capa: una base ancha y difuminada (halo verde esmeralda
      de baja intensidad) y una línea principal nítida encima. Así la ruta
      destaca con claridad sobre el mapa sin verse exagerada. */
+ /* Casing de contraste: una línea oscura y angosta debajo del halo.
+     Misma técnica que usan Google/Apple Maps — un borde oscuro que
+     garantiza que la ruta se lea igual de bien sobre cualquier fondo
+     (agua, vegetación, edificios), sin tocar su color ni su grosor. */
+  map.addLayer({ id: 'route-casing', type: 'line', source: 'route',
+    layout: { 'line-cap': 'round', 'line-join': 'round' },
+    paint: { 'line-color': '#04120D', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 3.6, 16, 7.2],
+      'line-opacity': 0.5 } });
+
   map.addLayer({ id: 'route-glow', type: 'line', source: 'route',
     layout: { 'line-cap': 'round', 'line-join': 'round' },
     paint: { 'line-color': '#10B981', 'line-width': ['interpolate', ['linear'], ['zoom'], 10, 7, 16, 18],
@@ -2645,7 +2654,7 @@ function boostStyleVisibility() {
       if (isMajorRoadLayer(layer.id)) {
         /* Vías principales: más contraste y cuerpo — son el "esqueleto"
            visual del mapa y deben leerse primero. */
-        boostOpacity(layer.id, 'line-opacity', 1.4);
+       boostOpacity(layer.id, 'line-opacity', 1.4);
         boostWidth(layer.id, 1.28);
       } else {
         /* Vías secundarias: se atenúan un poco más para crear profundidad
@@ -2656,14 +2665,17 @@ function boostStyleVisibility() {
     if (layer.type === 'symbol') {
       if (isRoadLabelLayer(layer.id) || layer.id.includes('road') || layer.id.includes('street')) {
         boostHalo(layer.id);
-        boostOpacity(layer.id, 'text-opacity', 1.1);
+        /* Ya no se amplifican por encima de su opacidad natural — solo
+           se les da el halo para que se lean bien, pero sin competir
+           con la ruta ni con los puntos del viaje. */
+        boostOpacity(layer.id, 'text-opacity', 0.95);
       } else {
         /* Resto de etiquetas del estilo base (nombres de lugares, POI
-           genéricos que trae el propio mapa) se atenúan para bajar el
-           ruido visual: la ruta, el vehículo y el destino deben ser el
-           centro de atención, no el nombre de cada calle o barrio. */
-        boostOpacity(layer.id, 'text-opacity', 0.7);
-        boostOpacity(layer.id, 'icon-opacity', 0.7);
+           genéricos que trae el propio mapa) se atenúan un poco más para
+           bajar todavía más el ruido visual: la ruta, el vehículo y el
+           destino deben ser el centro de atención. */
+        boostOpacity(layer.id, 'text-opacity', 0.6);
+        boostOpacity(layer.id, 'icon-opacity', 0.6);
       }
     }
   });
