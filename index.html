@@ -2250,20 +2250,25 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
       <!-- carrocería: SUV compacto — flancos más paralelos (menos "cintura" que un
            sedán), capó y trasera con quiebre definido en vez de una curva continua,
            más volumen general. Mismo bounding box que antes para no mover sombras. -->
-      <path d="M17,1.6 C19.9,1.6 22.15,3.1 23.2,6.3
-               C23.75,8 23.85,9.3 23.5,10.5
-               C23.25,11.3 23.35,11.9 23.7,12.6
-               C24.1,13.5 24.3,14.3 24.45,15.6
-               C24.75,18.2 24.6,20.7 23.75,23.3
-               C22.85,26 21.4,28.4 20.4,29.4
-               C19.5,30.3 18.4,30.9 17,31
-               C15.6,30.9 14.5,30.3 13.6,29.4
-               C12.6,28.4 11.15,26 10.25,23.3
-               C9.4,20.7 9.25,18.2 9.55,15.6
-               C9.7,14.3 9.9,13.5 10.3,12.6
-               C10.65,11.9 10.75,11.3 10.5,10.5
-               C10.15,9.3 10.25,8 10.8,6.3
-               C11.85,3.1 14.1,1.6 17,1.6 Z"
+      <!-- Carrocería con flancos RECTOS en la zona de las puertas (en vez de curva
+           continua de punta a punta) — es justo lo que hace que un ícono top-down
+           se lea como "auto real" y no como un óvalo. Morro con quiebre marcado,
+           cola más plana/ancha (SUV), mismo bounding box aproximado que antes. -->
+      <path d="M17,1.8
+               C19.6,1.8 21.7,3.1 22.6,5.8
+               C23.1,7.3 23.15,8.6 22.7,9.8
+               L22.55,10.6
+               C23.6,11.2 24.15,12.3 24.25,13.8
+               L24.25,23.4
+               C24.15,25.3 23.35,26.9 21.9,28.3
+               C20.5,29.7 18.9,30.4 17,30.5
+               C15.1,30.4 13.5,29.7 12.1,28.3
+               C10.65,26.9 9.85,25.3 9.75,23.4
+               L9.75,13.8
+               C9.85,12.3 10.4,11.2 11.45,10.6
+               L11.3,9.8
+               C10.85,8.6 10.9,7.3 11.4,5.8
+               C12.3,3.1 14.4,1.8 17,1.8 Z"
             fill="url(#carBody)" stroke="#c9ced3" stroke-width="0.2" stroke-opacity="0.5"/>
 
       <!-- quiebre de capó: línea horizontal sutil que marca dónde termina el capó y
