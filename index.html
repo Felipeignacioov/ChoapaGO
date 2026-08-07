@@ -181,7 +181,7 @@ button, a, .icon-btn, .help-pill, .swap-btn, .service-opt, .contact-btn, .peek-c
 .car-float{ width:34px; height:38px; position:relative; left:-17px; top:-19px; animation: carFloat 2.8s ease-in-out infinite; will-change: transform; }
 .car-susp{ width:100%; height:100%; transform-origin:50% 60%; }
 .car-susp.bounce{ animation: carSuspensionBounce 0.62s cubic-bezier(.34,1.56,.64,1) 1; }
-.car-wrap{ width:34px; height:38px; position:relative; transform-origin:50% 50%; filter: drop-shadow(0 1.5px 2.5px rgba(0,0,0,0.4)); }
+.car-wrap{ width:34px; height:38px; position:relative; transform-origin:50% 50%; filter: drop-shadow(0 2.2px 3.5px rgba(0,0,0,0.42)); }
 .car-wrap svg{ width:100%; height:100%; display:block; position:relative; z-index:2; }
 .car-wrap::before{ content:''; position:absolute; left:50%; top:56%; width:40px; height:40px; margin:-20px 0 0 -20px; border-radius:50%; background:radial-gradient(circle, rgba(45,212,191,0.15) 0%, rgba(20,184,166,0.06) 55%, rgba(20,184,166,0) 74%); z-index:1; animation: carHalo 3.2s ease-in-out infinite; pointer-events:none; will-change: transform, opacity; }
 @keyframes carFloat{ 0%,100%{ transform: translateY(0);} 50%{ transform: translateY(-1px);} }
@@ -2312,8 +2312,29 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
         </filter>
       </defs>
 
-      <ellipse id="carShadowAmbient" cx="17.6" cy="32.7" rx="9.7" ry="3.5" fill="#000" opacity="0.12" filter="url(#carSoftBlur)"/>
-      <ellipse id="carShadow" cx="17.2" cy="31.7" rx="6.14" ry="1.5" fill="#000" opacity="0.2" filter="url(#carSoftBlur)"/>
+     <ellipse id="carShadowAmbient" cx="17.6" cy="32.9" rx="9.9" ry="3.65" fill="#000" opacity="0.14" filter="url(#carSoftBlur)"/>
+      <ellipse id="carShadow" cx="17.2" cy="31.9" rx="6.14" ry="1.4" fill="#000" opacity="0.24" filter="url(#carSoftBlur)"/>
+
+      <!-- Pared lateral (grosor/altura): misma silueta de la carrocería, desplazada
+           hacia abajo-derecha y en tono oscuro, oculta detrás del cuerpo blanco — solo
+           asoma un borde grueso en ese lado, que se lee como el costado del vehículo
+           (el mismo recurso que usan los íconos "extruidos" de mapas premium). -->
+      <path d="M17,1.8
+               C19.42,1.8 21.37,3.1 22.21,5.8
+               C22.67,7.3 22.72,8.6 22.30,9.8
+               L22.16,10.6
+               C23.14,11.2 23.65,12.3 23.74,13.8
+               L23.74,23.4
+               C23.65,25.3 22.91,26.9 21.56,28.3
+               C20.26,29.7 18.77,30.4 17,30.5
+               C15.23,30.4 13.75,29.7 12.44,28.3
+               C11.09,26.9 10.35,25.3 10.26,23.4
+               L10.26,13.8
+               C10.35,12.3 10.86,11.2 11.84,10.6
+               L11.70,9.8
+               C11.28,8.6 11.33,7.3 11.79,5.8
+               C12.63,3.1 14.58,1.8 17,1.8 Z"
+            fill="#9199a0" opacity="0.6" transform="translate(0.6,0.95)"/>
 
       <!-- carrocería: 6-8% más angosta que la versión anterior, mismo largo -->
       <path d="M17,1.8
@@ -2374,6 +2395,8 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
 
       <!-- brillo diagonal -->
       <rect x="15.33" y="2" width="2.42" height="27.4" rx="1.21" fill="url(#carSheen)" opacity="0.32"/>
+      <!-- highlight puntual angosto: sugiere una superficie curva reflejando luz directa, no plana -->
+      <rect x="16.2" y="3.5" width="0.7" height="9" rx="0.35" fill="#ffffff" opacity="0.28"/>
 
       <!-- reflejo turquesa de la ruta -->
       <ellipse cx="17" cy="29.6" rx="4.84" ry="1" fill="url(#carRouteReflect)"/>
@@ -3646,9 +3669,10 @@ const SEARCH_MESSAGES = [
 ];
 let busy = false;
 let driverCollapseTimer = null;
-const PICKUP_ETA_MS = 45000; // TODO: por ahora es un valor fijo largo para pruebas; luego debe reemplazarse
-                              // por la detección real de llegada del auto al origen (cuando la posición del
-                              // vehículo en la ruta coincida con el punto de recogida del pasajero)
+const PICKUP_ETA_MS = 9000; // antes 45000ms (valor largo de prueba); acortado para que la demo
+                             // se sienta ágil. TODO: sigue pendiente reemplazarlo por la detección
+                             // real de llegada del auto al origen (cuando la posición del vehículo
+                             // en la ruta coincida con el punto de recogida del pasajero)
 const cancelSearchBtn = document.getElementById('cancelSearchBtn');
 const cancelTripBtn = document.getElementById('cancelTripBtn');
 // Identificadores de todos los temporizadores del flujo, guardados para
@@ -3674,7 +3698,7 @@ function startRequestFlow() {
     searchingText.textContent = SEARCH_MESSAGES[msgIdx];
   }, 1150);
 
-  const waitTime = 2500 + Math.random() * 1500;
+  const waitTime = 1200 + Math.random() * 800; // antes 2500-4000ms, ahora 1200-2000ms
   tripTimers.searchTimeout = setTimeout(() => {
     clearInterval(tripTimers.msgTimer);
     searchingOverlay.classList.remove('show');
