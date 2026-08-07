@@ -2255,7 +2255,7 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
      rim light (borde claro) en nariz y cola. Es la misma técnica que usan
      los íconos de vehículo de Uber/Apple Maps: un ícono plano con
      sombreado bien resuelto, no un modelo 3D real. */
-  carWrapEl.innerHTML = `<svg viewBox="0 0 34 38" xmlns="http://www.w3.org/2000/svg">
+ carWrapEl.innerHTML = `<svg viewBox="0 0 34 38" xmlns="http://www.w3.org/2000/svg">
       <defs>
         <linearGradient id="carBody" x1="0" y1="0" x2="1" y2="0">
           <stop offset="0%"  stop-color="#c6cbd1"/>
@@ -2302,97 +2302,85 @@ function buildOriginDestinationMarkers(originCoord, destCoord) {
         </filter>
       </defs>
 
-      <ellipse id="carShadowAmbient" cx="17.6" cy="32.7" rx="10.4" ry="3.5" fill="#000" opacity="0.12" filter="url(#carSoftBlur)"/>
-      <ellipse id="carShadow" cx="17.2" cy="31.7" rx="6.6" ry="1.5" fill="#000" opacity="0.2" filter="url(#carSoftBlur)"/>
+      <ellipse id="carShadowAmbient" cx="17.6" cy="32.7" rx="9.7" ry="3.5" fill="#000" opacity="0.12" filter="url(#carSoftBlur)"/>
+      <ellipse id="carShadow" cx="17.2" cy="31.7" rx="6.14" ry="1.5" fill="#000" opacity="0.2" filter="url(#carSoftBlur)"/>
 
-      <!-- carrocería: SUV compacto — flancos más paralelos (menos "cintura" que un
-           sedán), capó y trasera con quiebre definido en vez de una curva continua,
-           más volumen general. Mismo bounding box que antes para no mover sombras. -->
-      <!-- Carrocería con flancos RECTOS en la zona de las puertas (en vez de curva
-           continua de punta a punta) — es justo lo que hace que un ícono top-down
-           se lea como "auto real" y no como un óvalo. Morro con quiebre marcado,
-           cola más plana/ancha (SUV), mismo bounding box aproximado que antes. -->
+      <!-- carrocería: 6-8% más angosta que la versión anterior, mismo largo -->
       <path d="M17,1.8
-               C19.6,1.8 21.7,3.1 22.6,5.8
-               C23.1,7.3 23.15,8.6 22.7,9.8
-               L22.55,10.6
-               C23.6,11.2 24.15,12.3 24.25,13.8
-               L24.25,23.4
-               C24.15,25.3 23.35,26.9 21.9,28.3
-               C20.5,29.7 18.9,30.4 17,30.5
-               C15.1,30.4 13.5,29.7 12.1,28.3
-               C10.65,26.9 9.85,25.3 9.75,23.4
-               L9.75,13.8
-               C9.85,12.3 10.4,11.2 11.45,10.6
-               L11.3,9.8
-               C10.85,8.6 10.9,7.3 11.4,5.8
-               C12.3,3.1 14.4,1.8 17,1.8 Z"
+               C19.42,1.8 21.37,3.1 22.21,5.8
+               C22.67,7.3 22.72,8.6 22.30,9.8
+               L22.16,10.6
+               C23.14,11.2 23.65,12.3 23.74,13.8
+               L23.74,23.4
+               C23.65,25.3 22.91,26.9 21.56,28.3
+               C20.26,29.7 18.77,30.4 17,30.5
+               C15.23,30.4 13.75,29.7 12.44,28.3
+               C11.09,26.9 10.35,25.3 10.26,23.4
+               L10.26,13.8
+               C10.35,12.3 10.86,11.2 11.84,10.6
+               L11.70,9.8
+               C11.28,8.6 11.33,7.3 11.79,5.8
+               C12.63,3.1 14.58,1.8 17,1.8 Z"
             fill="url(#carBody)" stroke="#c9ced3" stroke-width="0.2" stroke-opacity="0.5"/>
 
-      <!-- quiebre de capó: línea horizontal sutil que marca dónde termina el capó y
-           empieza el parabrisas — la seña visual de "SUV" más importante -->
-      <path d="M11.3,8.9 L22.7,8.9" fill="none" stroke="#9aa0a6" stroke-width="0.18" opacity="0.32" stroke-linecap="round"/>
-      <!-- quiebre de maletero: misma idea en la trasera -->
-      <path d="M11.6,24.6 L22.4,24.6" fill="none" stroke="#9aa0a6" stroke-width="0.18" opacity="0.28" stroke-linecap="round"/>
+      <!-- quiebre de capó / maletero -->
+      <path d="M11.70,8.9 L22.30,8.9" fill="none" stroke="#9aa0a6" stroke-width="0.18" opacity="0.32" stroke-linecap="round"/>
+      <path d="M11.98,24.6 L22.02,24.6" fill="none" stroke="#9aa0a6" stroke-width="0.18" opacity="0.28" stroke-linecap="round"/>
 
-      <!-- líneas de panel (puertas), casi imperceptibles: dan la lectura de carrocería con paneles reales -->
-      <path d="M11.2,13.2 C11.7,17 11.7,21.8 11.2,25.7" fill="none" stroke="#a9afb5" stroke-width="0.16" opacity="0.3"/>
-      <path d="M22.8,13.2 C22.3,17 22.3,21.8 22.8,25.7" fill="none" stroke="#a9afb5" stroke-width="0.16" opacity="0.3"/>
+      <!-- líneas de puertas -->
+      <path d="M11.61,13.2 C12.07,17 12.07,21.8 11.61,25.7" fill="none" stroke="#a9afb5" stroke-width="0.16" opacity="0.3"/>
+      <path d="M22.39,13.2 C21.93,17 21.93,21.8 22.39,25.7" fill="none" stroke="#a9afb5" stroke-width="0.16" opacity="0.3"/>
 
-      <!-- ambient occlusion: sombreado propio en la parte baja de la carrocería, da volumen -->
-      <ellipse cx="17" cy="28.4" rx="6.4" ry="3.6" fill="url(#carAO)"/>
+      <!-- ambient occlusion -->
+      <ellipse cx="17" cy="28.4" rx="5.95" ry="3.6" fill="url(#carAO)"/>
 
-      <!-- pasos de rueda: un poco más grandes/marcados que en el sedán (guardabarros
-           más pronunciados, típico de un SUV compacto) -->
-      <ellipse cx="10.1" cy="11" rx="1.75" ry="2.9" fill="#0a0c0e" opacity="0.26"/>
-      <ellipse cx="23.9" cy="11" rx="1.75" ry="2.9" fill="#0a0c0e" opacity="0.26"/>
-      <ellipse cx="9.9" cy="24.8" rx="1.75" ry="2.9" fill="#0a0c0e" opacity="0.26"/>
-      <ellipse cx="24.1" cy="24.8" rx="1.75" ry="2.9" fill="#0a0c0e" opacity="0.26"/>
+      <!-- pasos de rueda: afinados -->
+      <ellipse cx="10.58" cy="11" rx="1.58" ry="2.9" fill="#0a0c0e" opacity="0.26"/>
+      <ellipse cx="23.42" cy="11" rx="1.58" ry="2.9" fill="#0a0c0e" opacity="0.26"/>
+      <ellipse cx="10.40" cy="24.8" rx="1.58" ry="2.9" fill="#0a0c0e" opacity="0.26"/>
+      <ellipse cx="23.60" cy="24.8" rx="1.58" ry="2.9" fill="#0a0c0e" opacity="0.26"/>
 
-      <!-- ruedas: neumático (negro) + llanta (gris metálico) diferenciados, sobre el mismo lugar/tamaño de antes -->
-      <rect x="9.5" y="9.4" width="1.6" height="4" rx="0.8" fill="#08090a"/>
-      <rect x="9.78" y="9.95" width="1.04" height="2.9" rx="0.52" fill="url(#tireRim)"/>
-      <rect x="22.9" y="9.4" width="1.6" height="4" rx="0.8" fill="#08090a"/>
-      <rect x="23.18" y="9.95" width="1.04" height="2.9" rx="0.52" fill="url(#tireRim)"/>
-      <rect x="9.3" y="22.8" width="1.6" height="4" rx="0.8" fill="#08090a"/>
-      <rect x="9.58" y="23.35" width="1.04" height="2.9" rx="0.52" fill="url(#tireRim)"/>
-      <rect x="23.1" y="22.8" width="1.6" height="4" rx="0.8" fill="#08090a"/>
-      <rect x="23.38" y="23.35" width="1.04" height="2.9" rx="0.52" fill="url(#tireRim)"/>
+      <!-- ruedas: neumático + llanta, más finas y alineadas al nuevo ancho -->
+      <rect x="10.03" y="9.4" width="1.49" height="4" rx="0.75" fill="#08090a"/>
+      <rect x="10.29" y="9.95" width="0.97" height="2.9" rx="0.48" fill="url(#tireRim)"/>
+      <rect x="22.49" y="9.4" width="1.49" height="4" rx="0.75" fill="#08090a"/>
+      <rect x="22.75" y="9.95" width="0.97" height="2.9" rx="0.48" fill="url(#tireRim)"/>
+      <rect x="9.84" y="22.8" width="1.49" height="4" rx="0.75" fill="#08090a"/>
+      <rect x="10.10" y="23.35" width="0.97" height="2.9" rx="0.48" fill="url(#tireRim)"/>
+      <rect x="22.67" y="22.8" width="1.49" height="4" rx="0.75" fill="#08090a"/>
+      <rect x="22.93" y="23.35" width="0.97" height="2.9" rx="0.48" fill="url(#tireRim)"/>
 
-      <!-- techo + parabrisas + luneta: greenhouse más alto y con esquinas menos
-           redondeadas (rx bajó de 1.9 a 1.1) — proporción de SUV, no de sedán bajo -->
-      <path d="M12.9,8.5 L21.1,8.5 L21.9,12.4 L21.35,12.4 L21.35,21.1 L21.9,21.1 L21.1,25 L12.9,25 L12.1,21.1 L12.65,21.1 L12.65,12.4 L12.1,12.4 Z"
+      <!-- techo + parabrisas + luneta: ~12% menos superficie negra, más carrocería blanca visible -->
+      <path d="M13.15,9.00 L20.85,9.00 L21.61,12.66 L21.09,12.66 L21.09,20.84 L21.61,20.84 L20.85,24.51 L13.15,24.51 L12.39,20.84 L12.91,20.84 L12.91,12.66 L12.39,12.66 Z"
             fill="url(#carCabin)"/>
-      <rect x="12.15" y="12.7" width="9.7" height="8.2" rx="1.1" fill="#0c1114"/>
-      <!-- realce de techo: más plano/ancho que antes (menos "burbuja"), acorde a un
-           techo de SUV que es más recto que el de un sedán -->
-      <ellipse cx="17" cy="14.1" rx="4" ry="0.85" fill="#ffffff" opacity="0.1"/>
+      <rect x="12.44" y="12.94" width="9.12" height="7.71" rx="1.03" fill="#0c1114"/>
+      <ellipse cx="17" cy="14.26" rx="3.76" ry="0.80" fill="#ffffff" opacity="0.1"/>
 
-      <!-- espejos: finos y discretos, con un pequeño brillo -->
-      <rect x="9.9" y="13" width="1.1" height="2.2" rx="0.55" fill="#a3aab0" opacity="0.85"/>
-      <rect x="23" y="13" width="1.1" height="2.2" rx="0.55" fill="#a3aab0" opacity="0.85"/>
-      <rect x="10.05" y="13.15" width="0.35" height="0.9" rx="0.17" fill="#ffffff" opacity="0.4"/>
-      <rect x="23.15" y="13.15" width="0.35" height="0.9" rx="0.17" fill="#ffffff" opacity="0.4"/>
+      <!-- espejos -->
+      <rect x="10.40" y="13" width="1.02" height="2.2" rx="0.51" fill="#a3aab0" opacity="0.85"/>
+      <rect x="22.58" y="13" width="1.02" height="2.2" rx="0.51" fill="#a3aab0" opacity="0.85"/>
+      <rect x="10.54" y="13.15" width="0.33" height="0.9" rx="0.16" fill="#ffffff" opacity="0.4"/>
+      <rect x="22.72" y="13.15" width="0.33" height="0.9" rx="0.16" fill="#ffffff" opacity="0.4"/>
 
-      <!-- brillo diagonal sutil, una sola pasada (sin cambios) -->
-      <rect x="15.2" y="2" width="2.6" height="27.4" rx="1.3" fill="url(#carSheen)" opacity="0.32"/>
+      <!-- brillo diagonal -->
+      <rect x="15.33" y="2" width="2.42" height="27.4" rx="1.21" fill="url(#carSheen)" opacity="0.32"/>
 
-      <!-- reflejo turquesa de la ruta sobre el bajo del auto -->
-      <ellipse cx="17" cy="29.6" rx="5.2" ry="1" fill="url(#carRouteReflect)"/>
+      <!-- reflejo turquesa de la ruta -->
+      <ellipse cx="17" cy="29.6" rx="4.84" ry="1" fill="url(#carRouteReflect)"/>
 
-      <!-- rim light: borde claro en nariz y cola, sugiere luz cayendo desde arriba sobre el filo de la carrocería -->
-      <path d="M12.6,3.4 C13.9,2.1 15.4,1.5 17,1.5 C18.6,1.5 20.1,2.1 21.4,3.4" fill="none" stroke="#ffffff" stroke-width="0.32" opacity="0.5" stroke-linecap="round"/>
-      <path d="M12.2,29.7 C13.6,31 15.2,31.5 17,31.5 C18.8,31.5 20.4,31 21.8,29.7" fill="none" stroke="#ffffff" stroke-width="0.22" opacity="0.28" stroke-linecap="round"/>
+      <!-- rim light nariz/cola -->
+      <path d="M12.91,3.4 C14.12,2.1 15.51,1.5 17,1.5 C18.49,1.5 19.88,2.1 21.09,3.4" fill="none" stroke="#ffffff" stroke-width="0.32" opacity="0.5" stroke-linecap="round"/>
+      <path d="M12.54,29.7 C13.84,31 15.33,31.5 17,31.5 C18.67,31.5 20.16,31 21.46,29.7" fill="none" stroke="#ffffff" stroke-width="0.22" opacity="0.28" stroke-linecap="round"/>
 
-      <!-- luces delanteras: efecto de vidrio (degradado radial) + brillo puntual, mismo tamaño/posición que antes -->
-      <rect x="12.1" y="4.3" width="2" height="0.9" rx="0.45" fill="url(#headlightGlass)"/>
-      <circle cx="12.55" cy="4.55" r="0.2" fill="#ffffff" opacity="0.95"/>
-      <rect x="19.9" y="4.3" width="2" height="0.9" rx="0.45" fill="url(#headlightGlass)"/>
-      <circle cx="20.35" cy="4.55" r="0.2" fill="#ffffff" opacity="0.95"/>
+      <!-- luces delanteras -->
+      <rect x="12.44" y="4.3" width="1.86" height="0.9" rx="0.45" fill="url(#headlightGlass)"/>
+      <circle cx="12.86" cy="4.55" r="0.2" fill="#ffffff" opacity="0.95"/>
+      <rect x="19.70" y="4.3" width="1.86" height="0.9" rx="0.45" fill="url(#headlightGlass)"/>
+      <circle cx="20.12" cy="4.55" r="0.2" fill="#ffffff" opacity="0.95"/>
 
-      <!-- luces traseras: mismo tratamiento de vidrio -->
-      <rect x="11.3" y="27.5" width="2" height="0.85" rx="0.42" fill="url(#taillightGlass)"/>
-      <rect x="20.7" y="27.5" width="2" height="0.85" rx="0.42" fill="url(#taillightGlass)"/>
+      <!-- luces traseras -->
+      <rect x="11.70" y="27.5" width="1.86" height="0.85" rx="0.42" fill="url(#taillightGlass)"/>
+      <rect x="20.44" y="27.5" width="1.86" height="0.85" rx="0.42" fill="url(#taillightGlass)"/>
     </svg>`;
   carSuspEl.appendChild(carWrapEl);
   carFloatEl.appendChild(carSuspEl);
