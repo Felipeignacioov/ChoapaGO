@@ -355,16 +355,35 @@ border:1px solid rgba(16,185,129,0.4);
 background: linear-gradient(150deg, var(--accent-2), var(--accent-1) 78%);
 color:#06120D; font-weight:800; font-size:14.5px; letter-spacing:.01em;
 display:flex; align-items:center; justify-content:center; gap:8px;
-transition: transform .15s ease, box-shadow .3s ease, border-color .3s ease, background .3s ease;
+position:relative; overflow:hidden; isolation:isolate;
+transition: transform .35s cubic-bezier(.34,1.56,.64,1), box-shadow .3s ease, border-color .3s ease, background .3s ease, color .3s ease;
 box-shadow:0 10px 26px rgba(16,185,129,0.28), inset 0 1px 0 rgba(255,255,255,0.18);
 }
-.request-btn-icon{ width:17px; height:17px; flex-shrink:0; }
-.request-btn:active{ transform:scale(.98); box-shadow:0 5px 14px rgba(16,185,129,0.22); }
+/* Brillo sutil que recorre el botón cada ~7s en reposo — se apaga por
+   completo en loading/done/enroute para no competir con el spinner ni
+   sentirse "juguetón" durante un estado serio del flujo. */
+.request-btn::after{
+  content:''; position:absolute; inset:0; z-index:1; pointer-events:none;
+  background: linear-gradient(115deg, transparent 40%, rgba(255,255,255,0.32) 50%, transparent 60%);
+  background-size:220% 100%; background-position:150% 0;
+  animation: btnShimmer 7s ease-in-out infinite;
+}
+.request-btn.loading::after, .request-btn.done::after, .request-btn.enroute::after{ animation:none; opacity:0; }
+@keyframes btnShimmer{ 0%,88%{ background-position:150% 0; } 96%{ background-position:-50% 0; } 100%{ background-position:-50% 0; } }
+.request-btn-icon{ width:17px; height:17px; flex-shrink:0; position:relative; z-index:2; }
+.request-btn:active{ transform:scale(.98); box-shadow:0 5px 14px rgba(16,185,129,0.22); transition: transform .12s ease, box-shadow .2s ease; }
 @media (hover:hover) and (pointer:fine){
 .request-btn:hover{ box-shadow:0 14px 32px rgba(16,185,129,0.36), inset 0 1px 0 rgba(255,255,255,0.22); transform:translateY(-1px); }
 }
 .request-btn.loading{ background:linear-gradient(150deg,#14181C,#0C0F12); color:var(--text-secondary); cursor:default; border-color:rgba(255,255,255,0.08); box-shadow:none; }
 .request-btn.loading .request-btn-icon{ display:none; }
+.request-btn-spinner{ display:none; width:16px; height:16px; flex-shrink:0; position:relative; z-index:2; animation: btnSpin .8s linear infinite; }
+.request-btn.loading .request-btn-spinner{ display:block; }
+.request-btn-spinner circle{ opacity:.22; }
+.request-btn-spinner circle.spinner-arc{ opacity:1; stroke-dasharray:34; stroke-dashoffset:22; }
+@keyframes btnSpin{ to{ transform:rotate(360deg); } }
+.request-btn-label{ position:relative; z-index:2; }
+@keyframes btnLabelFade{ from{ opacity:0; transform:translateY(2px); } to{ opacity:1; transform:translateY(0); } }
 .request-btn.done{ background:linear-gradient(150deg,#123B34,#0D2A26); color:#CFF7F1; border-color:rgba(16,185,129,0.3); box-shadow:0 6px 16px rgba(0,0,0,0.3); }
 .request-btn.done .request-btn-icon{ display:none; }
 .request-btn-car{ position:relative; display:none; align-items:center; justify-content:center; width:24px; height:24px; flex-shrink:0; }
@@ -918,6 +937,10 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
       </div>
      <button class="request-btn" id="requestBtn">
   <svg class="request-btn-icon" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>
+  <svg class="request-btn-spinner" id="requestBtnSpinner" viewBox="0 0 24 24" fill="none" aria-hidden="true">
+    <circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.4"/>
+    <circle class="spinner-arc" cx="12" cy="12" r="9" stroke="var(--accent-2)" stroke-width="2.4" stroke-linecap="round"/>
+  </svg>
   <span class="request-btn-car" id="requestBtnCar" aria-hidden="true">
     <svg viewBox="0 0 32 20" fill="none" xmlns="http://www.w3.org/2000/svg">
       <g stroke="currentColor" stroke-width="1.6" stroke-linecap="round">
@@ -3567,6 +3590,15 @@ document.querySelectorAll('.service-opt').forEach(opt => {
 /* ---------- I. FLUJO DE ESTADOS: idle -> buscando conductor -> asignado ---------- */
 const requestBtn = document.getElementById('requestBtn');
 const requestBtnLabel = document.getElementById('requestBtnLabel');
+/* Cambia el texto del botón con un fade sutil en vez de un salto seco:
+   se reinicia la animación por frame (offsetWidth fuerza reflow) cada
+   vez que cambia el estado del flujo. */
+function setRequestBtnLabel(text) {
+  requestBtnLabel.style.animation = 'none';
+  void requestBtnLabel.offsetWidth;
+  requestBtnLabel.textContent = text;
+  requestBtnLabel.style.animation = 'btnLabelFade .28s ease';
+}
 const driverCard = document.getElementById('driverCard');
 const driverCardPill = document.getElementById('driverCardPill');
 const searchingOverlay = document.getElementById('searchingOverlay');
@@ -3596,7 +3628,7 @@ function startRequestFlow() {
   driverCard.classList.remove('visible', 'assigned', 'collapsed');
   carEl.classList.remove('visible');
   requestBtn.classList.remove('enroute');
-  requestBtn.classList.add('loading'); requestBtnLabel.textContent = 'Buscando conductor…';
+ requestBtn.classList.add('loading'); setRequestBtnLabel('Buscando conductor…');
   setSheet('collapsed'); // deja ver el mapa casi por completo mientras busca
 
   let msgIdx = 0;
@@ -3612,7 +3644,7 @@ function startRequestFlow() {
     clearInterval(tripTimers.msgTimer);
     searchingOverlay.classList.remove('show');
     requestBtn.classList.remove('loading'); requestBtn.classList.add('done');
-    requestBtnLabel.textContent = '¡Conductor asignado!';
+   setRequestBtnLabel('¡Conductor asignado!');
     driverCard.classList.add('visible', 'assigned');
     // La tarjeta se muestra completa 3s y luego se contrae sola en la
     // píldora; si se pide un nuevo viaje antes de eso, el timer se limpia
@@ -3630,11 +3662,11 @@ function startRequestFlow() {
     tripTimers.assignedTimeout = setTimeout(() => {
       requestBtn.classList.remove('done');
       requestBtn.classList.add('enroute');
-      requestBtnLabel.textContent = 'Conductor en camino…';
+     setRequestBtnLabel('Conductor en camino…');
 
       tripTimers.enrouteTimeout = setTimeout(() => {
         requestBtn.classList.remove('enroute');
-        requestBtnLabel.textContent = 'Pedir viaje';
+       setRequestBtnLabel('Pedir viaje');
         cancelTripBtn.classList.remove('visible');
         // El viaje terminó: la tarjeta/píldora del conductor ya no debe
         // seguir arriba (antes se quedaba pegada como si el viaje
@@ -3673,7 +3705,7 @@ function cancelTrip() {
 
   searchingOverlay.classList.remove('show');
   requestBtn.classList.remove('loading', 'done', 'enroute');
-  requestBtnLabel.textContent = 'Pedir viaje';
+  setRequestBtnLabel('Pedir viaje');
   driverCard.classList.remove('visible', 'assigned', 'collapsed');
   cancelTripBtn.classList.remove('visible');
   carEl.classList.remove('visible');
