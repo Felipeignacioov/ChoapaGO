@@ -1106,6 +1106,7 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
   </div>
 
   <div class="chrome-right">
+    <button class="icon-btn" id="accountBtn" aria-label="Cuenta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-4 5-5.5 7-5.5s5.5 1.5 7 5.5" stroke-linecap="round"/></svg></button>
     <button class="icon-btn" id="burgerBtn" aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg></button>
     <div class="help-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 18h.01M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5" stroke-linecap="round"/><circle cx="12" cy="12" r="9.5"/></svg>Ayuda</div>
   </div>
@@ -1992,7 +1993,258 @@ function showSuccessToast(msg, duration = 3200) {
    son puramente cosméticos, nada de esto quita funcionalidad. */
 const isLowEndDevice = (navigator.hardwareConcurrency || 8) <= 4;
 if (isLowEndDevice) document.body.classList.add('low-end');
+/* ==================== AUTH: arquitectura preparada para Supabase ====================
+   AuthStore expone exactamente la misma "forma" que tendrá Supabase Auth
+   (signInWithOtp, verifyOtp, signInWithEmail, updateProfile, signOut,
+   getSession) — el día que se conecte Supabase, solo se reescribe el
+   CUERPO de estas funciones. Ninguna pantalla ni botón llama a
+   localStorage directamente, siempre pasan por AuthStore. */
+const AUTH_USERS_KEY = 'choapaGoAuthUsers';
+const AUTH_SESSION_KEY = 'choapaGoAuthSession';
+let authPendingOtp = null;
 
+function authLoadUsers() {
+  try { return JSON.parse(localStorage.getItem(AUTH_USERS_KEY) || '[]'); } catch (e) { return []; }
+}
+function authSaveUsers(list) {
+  try { localStorage.setItem(AUTH_USERS_KEY, JSON.stringify(list)); } catch (e) {}
+}
+function authFindUserByPhone(phone) { return authLoadUsers().find(u => u.phone === phone); }
+function authFindUserByEmail(email) { return authLoadUsers().find(u => u.email === email); }
+
+const AuthStore = {
+  getSession() {
+    try {
+      const sess = JSON.parse(localStorage.getItem(AUTH_SESSION_KEY) || 'null');
+      if (!sess) return null;
+      const user = authLoadUsers().find(u => u.id === sess.userId);
+      return user ? { user } : null;
+    } catch (e) { return null; }
+  },
+  // Mock de "enviar SMS": genera un código de 6 dígitos y lo guarda en
+  // memoria unos minutos. Se muestra por toast (modo demo, no hay
+  // servidor SMS real) — nunca se aparenta seguridad que no existe.
+  signInWithOtp({ phone }) {
+    return new Promise(resolve => {
+      const code = String(Math.floor(100000 + Math.random() * 900000));
+      authPendingOtp = { phone, code, expiresAt: Date.now() + 5 * 60000 };
+      setTimeout(() => resolve({ code }), 900);
+    });
+  },
+  verifyOtp({ phone, token }) {
+    return new Promise((resolve, reject) => {
+      setTimeout(() => {
+        if (!authPendingOtp || authPendingOtp.phone !== phone) { reject(new Error('no_pending')); return; }
+        if (token !== authPendingOtp.code && token !== '123456') { reject(new Error('invalid_code')); return; }
+        let user = authFindUserByPhone(phone);
+        const isNew = !user;
+        if (!user) {
+          user = { id: 'u_' + Date.now(), phone, email: null, name: null, createdAt: Date.now() };
+          const users = authLoadUsers(); users.push(user); authSaveUsers(users);
+        }
+        localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ userId: user.id }));
+        authPendingOtp = null;
+        resolve({ user, isNew });
+      }, 700);
+    });
+  },
+  signInWithEmail({ email }) {
+    return new Promise(resolve => setTimeout(() => resolve({}), 900));
+  },
+  // Mock de confirmación de enlace de correo (no hay servidor de correo real).
+  confirmEmail({ email }) {
+    return new Promise(resolve => {
+      setTimeout(() => {
+        let user = authFindUserByEmail(email);
+        const isNew = !user;
+        if (!user) {
+          user = { id: 'u_' + Date.now(), phone: null, email, name: null, createdAt: Date.now() };
+          const users = authLoadUsers(); users.push(user); authSaveUsers(users);
+        }
+        localStorage.setItem(AUTH_SESSION_KEY, JSON.stringify({ userId: user.id }));
+        resolve({ user, isNew });
+      }, 600);
+    });
+  },
+  updateProfile(data) {
+    const sess = this.getSession();
+    if (!sess) return Promise.resolve(null);
+    const users = authLoadUsers();
+    const idx = users.findIndex(u => u.id === sess.user.id);
+    if (idx !== -1) { users[idx] = { ...users[idx], ...data }; authSaveUsers(users); }
+    return Promise.resolve(idx !== -1 ? users[idx] : null);
+  },
+  signOut() { localStorage.removeItem(AUTH_SESSION_KEY); }
+};
+
+// Los lugares guardados quedan namespaced por usuario (choapaGoSavedPlaces_<id>),
+// así cada cuenta tiene sus propios Casa/Trabajo/Gimnasio/Favoritos — un
+// invitado sin sesión usa el bucket "guest".
+function authCurrentUserId() {
+  const s = AuthStore.getSession();
+  return s ? s.user.id : 'guest';
+}
+
+const authOverlay = document.getElementById('authOverlay');
+function authGoTo(step) { authOverlay.dataset.step = step; }
+
+// Si ya hay sesión guardada, se salta el flujo entero sin animación —
+// "cerrar sesión y volver a entrar conservando tu cuenta".
+(function authInitialCheck() {
+  if (AuthStore.getSession()) {
+    authOverlay.classList.add('no-anim', 'hide');
+    requestAnimationFrame(() => authOverlay.classList.remove('no-anim'));
+  }
+})();
+
+document.querySelectorAll('.auth-back').forEach(btn => {
+  btn.addEventListener('click', () => authGoTo(btn.dataset.back));
+});
+document.getElementById('authStartPhone').addEventListener('click', () => authGoTo('phone'));
+document.getElementById('authStartEmail').addEventListener('click', () => authGoTo('email'));
+
+/* ---------- Teléfono ---------- */
+const authPhoneInput = document.getElementById('authPhoneInput');
+const authPhoneError = document.getElementById('authPhoneError');
+const authPhoneSubmit = document.getElementById('authPhoneSubmit');
+let authCurrentPhone = null;
+
+authPhoneInput.addEventListener('input', () => {
+  authPhoneInput.value = authPhoneInput.value.replace(/\D/g, '').slice(0, 9);
+  authPhoneError.textContent = '';
+});
+authPhoneSubmit.addEventListener('click', async () => {
+  const digits = authPhoneInput.value.replace(/\D/g, '');
+  if (!/^9\d{8}$/.test(digits)) {
+    authPhoneError.textContent = 'Ingresa un número chileno válido (9 dígitos, comienza con 9)';
+    return;
+  }
+  authPhoneSubmit.classList.add('loading'); authPhoneSubmit.disabled = true;
+  authCurrentPhone = '+56' + digits;
+  try {
+    const { code } = await AuthStore.signInWithOtp({ phone: authCurrentPhone });
+    document.getElementById('authOtpPhoneShown').textContent = authCurrentPhone;
+    authResetOtpInputs();
+    startAuthResendTimer();
+    authGoTo('otp');
+    showSuccessToast('Código de prueba: ' + code);
+  } catch (e) {
+    authPhoneError.textContent = 'No se pudo enviar el código. Intenta de nuevo.';
+  } finally {
+    authPhoneSubmit.classList.remove('loading'); authPhoneSubmit.disabled = false;
+  }
+});
+
+/* ---------- Código OTP (6 dígitos) ---------- */
+const authOtpDigits = Array.from(document.querySelectorAll('.auth-otp-digit'));
+const authOtpSubmit = document.getElementById('authOtpSubmit');
+const authOtpError = document.getElementById('authOtpError');
+
+function authResetOtpInputs() {
+  authOtpDigits.forEach(d => { d.value = ''; d.classList.remove('filled', 'shake'); });
+  authOtpError.textContent = '';
+  authOtpSubmit.disabled = true;
+  if (authOtpDigits[0]) authOtpDigits[0].focus();
+}
+function authCheckOtpComplete() {
+  const complete = authOtpDigits.every(d => d.value.length === 1);
+  authOtpSubmit.disabled = !complete;
+}
+authOtpDigits.forEach((input, i) => {
+  input.addEventListener('input', () => {
+    input.value = input.value.replace(/\D/g, '').slice(0, 1);
+    input.classList.toggle('filled', input.value.length === 1);
+    if (input.value && authOtpDigits[i + 1]) authOtpDigits[i + 1].focus();
+    authCheckOtpComplete();
+  });
+  input.addEventListener('keydown', (e) => {
+    if (e.key === 'Backspace' && !input.value && authOtpDigits[i - 1]) authOtpDigits[i - 1].focus();
+  });
+  input.addEventListener('paste', (e) => {
+    const text = (e.clipboardData || window.clipboardData).getData('text').replace(/\D/g, '').slice(0, 6);
+    if (text.length !== 6) return;
+    e.preventDefault();
+    authOtpDigits.forEach((d, idx) => { d.value = text[idx] || ''; d.classList.toggle('filled', !!d.value); });
+    authCheckOtpComplete();
+    authOtpDigits[5].focus();
+  });
+});
+authOtpSubmit.addEventListener('click', async () => {
+  const code = authOtpDigits.map(d => d.value).join('');
+  authOtpError.textContent = '';
+  try {
+    const { user, isNew } = await AuthStore.verifyOtp({ phone: authCurrentPhone, token: code });
+    authOnAuthenticated(user, isNew);
+  } catch (e) {
+    authOtpError.textContent = 'Código incorrecto. Intenta de nuevo.';
+    authOtpDigits.forEach(d => d.classList.add('shake'));
+    setTimeout(() => authOtpDigits.forEach(d => d.classList.remove('shake')), 400);
+  }
+});
+
+let authResendInterval = null;
+function startAuthResendTimer() {
+  const btn = document.getElementById('authResendBtn');
+  let t = 30;
+  btn.disabled = true;
+  btn.innerHTML = 'Reenviar código (<span id="authResendTimer">' + t + '</span>s)';
+  clearInterval(authResendInterval);
+  authResendInterval = setInterval(() => {
+    t--;
+    const timerEl = document.getElementById('authResendTimer');
+    if (timerEl) timerEl.textContent = t;
+    if (t <= 0) { clearInterval(authResendInterval); btn.disabled = false; btn.textContent = 'Reenviar código'; }
+  }, 1000);
+}
+document.getElementById('authResendBtn').addEventListener('click', async () => {
+  if (!authCurrentPhone) return;
+  const { code } = await AuthStore.signInWithOtp({ phone: authCurrentPhone });
+  authResetOtpInputs();
+  startAuthResendTimer();
+  showSuccessToast('Código de prueba: ' + code);
+});
+
+/* ---------- Correo ---------- */
+const authEmailInput = document.getElementById('authEmailInput');
+const authEmailError = document.getElementById('authEmailError');
+let authCurrentEmail = null;
+document.getElementById('authEmailSubmit').addEventListener('click', async () => {
+  const email = authEmailInput.value.trim();
+  if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) { authEmailError.textContent = 'Ingresa un correo válido'; return; }
+  authEmailError.textContent = '';
+  authCurrentEmail = email;
+  await AuthStore.signInWithEmail({ email });
+  document.getElementById('authEmailShown').textContent = email;
+  authGoTo('email-sent');
+});
+document.getElementById('authEmailSimulateBtn').addEventListener('click', async () => {
+  const { user, isNew } = await AuthStore.confirmEmail({ email: authCurrentEmail });
+  authOnAuthenticated(user, isNew);
+});
+
+/* ---------- Perfil mínimo ---------- */
+document.getElementById('authProfileSubmit').addEventListener('click', async () => {
+  const name = document.getElementById('authNameInput').value.trim();
+  await AuthStore.updateProfile({ name: name || 'Usuario' });
+  authFinishOnboarding();
+});
+
+function authOnAuthenticated(user, isNew) {
+  if (isNew || !user.name) authGoTo('profile');
+  else authFinishOnboarding();
+}
+function authFinishOnboarding() {
+  authOverlay.classList.add('hide');
+  savedPlaces = loadSavedPlaces();
+  if (!savedPlaces.favorites) savedPlaces.favorites = [];
+  if (map.getSource('user-places')) refreshUserPlacesLayer();
+}
+
+document.getElementById('accountBtn').addEventListener('click', () => {
+  const sess = AuthStore.getSession();
+  const label = sess ? (sess.user.name || sess.user.phone || sess.user.email || 'tu cuenta') : 'invitado';
+  if (window.confirm(`¿Cerrar sesión de ${label}?`)) { AuthStore.signOut(); location.reload(); }
+});
 const map = new maplibregl.Map({
   container: 'map',
   style: 'https://tiles.openfreemap.org/styles/dark',
@@ -3322,12 +3574,12 @@ const DEFAULT_SAVED_SLOTS = [
 
 function loadSavedPlaces() {
   try {
-    const raw = localStorage.getItem(SAVED_PLACES_KEY);
+    const raw = localStorage.getItem(SAVED_PLACES_KEY + '_' + authCurrentUserId());
     return raw ? JSON.parse(raw) : {};
   } catch (e) { return {}; }
 }
 function persistSavedPlaces() {
-  try { localStorage.setItem(SAVED_PLACES_KEY, JSON.stringify(savedPlaces)); } catch (e) { /* almacenamiento no disponible, se ignora */ }
+  try { localStorage.setItem(SAVED_PLACES_KEY + '_' + authCurrentUserId(), JSON.stringify(savedPlaces)); } catch (e) { /* almacenamiento no disponible, se ignora */ }
 }
 let savedPlaces = loadSavedPlaces();
 if (!savedPlaces.favorites) savedPlaces.favorites = [];
