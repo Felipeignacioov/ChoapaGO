@@ -860,7 +860,7 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
   background:linear-gradient(150deg, var(--accent-2), var(--accent-1) 78%); color:#06120D;
   font-weight:800; font-size:14.5px; letter-spacing:.01em; cursor:pointer; font-family:inherit;
   display:flex; align-items:center; justify-content:center; gap:8px;
-  box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2), inset 0 -1px 0 rgba(0,0,0,0.14);
   transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
 }
 .auth-btn-primary svg{ width:17px; height:17px; }
@@ -870,7 +870,7 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
 .auth-btn-primary.loading .auth-btn-spinner{ display:block; }
 .auth-btn-primary.loading #authPhoneSubmitLabel{ opacity:.6; }
 .auth-btn-secondary{
-  width:100%; padding:15px; border-radius:var(--radius-lg); border:1px solid var(--border-glass-strong);
+  width:100%; padding:15px; border-radius:var(--radius-lg); border:1px solid rgba(255,255,255,0.18);
   background:rgba(255,255,255,0.03); color:var(--text-primary); font-weight:600; font-size:13.5px;
   cursor:pointer; font-family:inherit; transition: background .2s ease, transform .15s ease;
 }
@@ -926,6 +926,7 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
 .auth-screen[data-screen="email-sent"] .auth-btn-primary{ margin-top:6px; }
 
 @media (max-width:420px){ .auth-screen{ padding:26px 22px; max-width:100%; } }
+@media (min-width:640px){ .auth-screen{ padding:16px 26px; } }
 button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline-offset:2px; }
 </style>
 </head>
