@@ -278,7 +278,36 @@ button, a, .icon-btn, .help-pill, .swap-btn, .service-opt, .contact-btn, .peek-c
   .help-pill:hover{ background:rgba(5,150,105,0.15); }
 }
 .help-pill svg{ width:12px; height:12px; }
+/* ---------- Botón de cuenta consolidado (reemplaza perfil + hamburguesa + Ayuda sueltos) ---------- */
+.account-btn{
+  width:34px; height:34px; border-radius:50%; border:1.5px solid rgba(5,150,105,0.35);
+  background:linear-gradient(140deg,#212932,#10151a); display:flex; align-items:center; justify-content:center;
+  color:var(--accent-2); cursor:pointer; padding:0; box-shadow:0 0 0 3px rgba(5,150,105,0.06), 0 4px 10px rgba(0,0,0,0.3);
+  transition: transform .12s ease, border-color .2s ease;
+}
+.account-btn:active{ transform:scale(.92); }
+.account-btn svg{ width:16px; height:16px; }
+.account-btn-initial{ font-family:'Inter',sans-serif; font-weight:700; font-size:13px; color:var(--accent-2); }
 
+.account-menu{
+  position:absolute; top:calc(100% + 10px); right:0; width:220px; padding:8px;
+  opacity:0; transform:translateY(-6px) scale(.97); pointer-events:none;
+  transition: opacity .2s ease, transform .2s cubic-bezier(.16,1,.3,1);
+}
+.account-menu.show{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+.account-menu-head{ padding:8px 10px 10px; border-bottom:1px solid var(--border-glass); margin-bottom:6px; }
+.account-menu-name{ font-size:13px; font-weight:700; color:var(--text-primary); }
+.account-menu-sub{ font-size:10.5px; color:var(--text-tertiary); margin-top:2px; }
+.account-menu-item{
+  width:100%; display:flex; align-items:center; gap:9px; padding:10px; border-radius:var(--radius-sm);
+  border:none; background:transparent; color:var(--text-primary); font-family:inherit; font-size:12px; font-weight:600;
+  cursor:pointer; text-align:left; transition: background .15s ease;
+}
+.account-menu-item svg{ width:14px; height:14px; color:var(--text-secondary); flex-shrink:0; }
+.account-menu-item:active{ background:rgba(255,255,255,0.06); }
+@media (hover:hover) and (pointer:fine){ .account-menu-item:hover{ background:rgba(255,255,255,0.06); } }
+.account-menu-item.danger{ color:#ffb3ab; }
+.account-menu-item.danger svg{ color:#ffb3ab; }
 .panel{
   background: linear-gradient(165deg, rgba(19,24,30,0.6), rgba(11,14,18,0.54) 55%, rgba(9,12,16,0.56));
   border:1px solid var(--border-glass); border-radius:var(--radius-lg);
@@ -688,6 +717,11 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
    mapa vs. panel) y la respuesta táctil. ===== */
 @media (max-width: 880px){
   .chrome-center{ display:none; }
+  /* En móvil el botón de cuenta ya es el único punto de entrada — dejar
+     el logo suelto sin acción en la otra esquina sería el mismo ruido
+     que estamos resolviendo. En escritorio se queda con el wordmark
+     completo, ahí sí se lee como marca. */
+  .chrome-left{ display:none; }
 
   .sheet-scrim{
     position:fixed; inset:0; z-index:12; pointer-events:none;
@@ -1106,10 +1140,24 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
     <a href="#">Sobre nosotros</a>
   </div>
 
-  <div class="chrome-right">
-    <button class="icon-btn" id="accountBtn" aria-label="Cuenta"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-4 5-5.5 7-5.5s5.5 1.5 7 5.5" stroke-linecap="round"/></svg></button>
-    <button class="icon-btn" id="burgerBtn" aria-label="Menú"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 7h16M4 12h16M4 17h16" stroke-linecap="round"/></svg></button>
-    <div class="help-pill"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 18h.01M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5" stroke-linecap="round"/><circle cx="12" cy="12" r="9.5"/></svg>Ayuda</div>
+ <div class="chrome-right">
+    <button class="account-btn" id="accountBtn" aria-label="Cuenta">
+      <span id="accountBtnAvatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-4 5-5.5 7-5.5s5.5 1.5 7 5.5" stroke-linecap="round"/></svg></span>
+    </button>
+    <div class="panel account-menu" id="accountMenu">
+      <div class="account-menu-head">
+        <div class="account-menu-name" id="accountMenuName">Invitado</div>
+        <div class="account-menu-sub" id="accountMenuSub">Sin sesión iniciada</div>
+      </div>
+      <button class="account-menu-item" id="accountMenuHelp">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 18h.01M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5" stroke-linecap="round"/><circle cx="12" cy="12" r="9.5"/></svg>
+        <span>Ayuda</span>
+      </button>
+      <button class="account-menu-item" id="accountMenuAuthAction">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
+        <span id="accountMenuAuthLabel">Iniciar sesión</span>
+      </button>
+    </div>
   </div>
 
   <div class="panel request-card" id="requestCard" data-sheet="mid">
@@ -2239,12 +2287,63 @@ function authFinishOnboarding() {
   savedPlaces = loadSavedPlaces();
   if (!savedPlaces.favorites) savedPlaces.favorites = [];
   if (map.getSource('user-places')) refreshUserPlacesLayer();
+  updateAccountMenuContent();
 }
 
-document.getElementById('accountBtn').addEventListener('click', () => {
+const accountBtn = document.getElementById('accountBtn');
+const accountMenu = document.getElementById('accountMenu');
+
+function updateAccountMenuContent() {
   const sess = AuthStore.getSession();
-  const label = sess ? (sess.user.name || sess.user.phone || sess.user.email || 'tu cuenta') : 'invitado';
-  if (window.confirm(`¿Cerrar sesión de ${label}?`)) { AuthStore.signOut(); location.reload(); }
+  const nameEl = document.getElementById('accountMenuName');
+  const subEl = document.getElementById('accountMenuSub');
+  const avatarEl = document.getElementById('accountBtnAvatar');
+  const authLabelEl = document.getElementById('accountMenuAuthLabel');
+
+  if (sess) {
+    const displayName = sess.user.name || 'Mi cuenta';
+    nameEl.textContent = displayName;
+    subEl.textContent = sess.user.phone || sess.user.email || '';
+    const initial = displayName.trim().charAt(0).toUpperCase() || '?';
+    avatarEl.innerHTML = `<span class="account-btn-initial">${initial}</span>`;
+    authLabelEl.textContent = 'Cerrar sesión';
+  } else {
+    nameEl.textContent = 'Invitado';
+    subEl.textContent = 'Sin sesión iniciada';
+    avatarEl.innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-4 5-5.5 7-5.5s5.5 1.5 7 5.5" stroke-linecap="round"/></svg>';
+    authLabelEl.textContent = 'Iniciar sesión';
+  }
+}
+updateAccountMenuContent();
+
+function closeAccountMenu() { accountMenu.classList.remove('show'); }
+
+accountBtn.addEventListener('click', (e) => {
+  e.stopPropagation();
+  updateAccountMenuContent();
+  accountMenu.classList.toggle('show');
+});
+onGlobalClick((e) => {
+  if (!accountMenu.classList.contains('show')) return;
+  if (accountMenu.contains(e.target) || accountBtn.contains(e.target)) return;
+  closeAccountMenu();
+});
+
+document.getElementById('accountMenuHelp').addEventListener('click', () => {
+  closeAccountMenu();
+  showToast('Centro de ayuda: próximamente');
+});
+
+document.getElementById('accountMenuAuthAction').addEventListener('click', () => {
+  closeAccountMenu();
+  const sess = AuthStore.getSession();
+  if (sess) {
+    const label = sess.user.name || sess.user.phone || sess.user.email || 'tu cuenta';
+    if (window.confirm(`¿Cerrar sesión de ${label}?`)) { AuthStore.signOut(); location.reload(); }
+  } else {
+    authGoTo('welcome');
+    authOverlay.classList.remove('hide');
+  }
 });
 const map = new maplibregl.Map({
   container: 'map',
@@ -4297,9 +4396,6 @@ function onDragEnd(y) {
   el.addEventListener('touchend', e => onDragEnd(e.changedTouches[0].clientY), { passive: true });
 });
 
-document.getElementById('burgerBtn').addEventListener('click', () => {
-  if (driverCard.classList.contains('assigned')) driverCard.classList.toggle('visible');
-});
 // Tocar fuera del Target (mapa, chrome superior, etc.) mientras está
 // expandido se interpreta como intención de salir de ese modo: vuelve
 // directo a "mid" (normal), con la misma transición suave de siempre —
