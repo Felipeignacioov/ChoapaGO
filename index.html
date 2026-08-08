@@ -289,15 +289,23 @@ button, a, .icon-btn, .help-pill, .swap-btn, .service-opt, .contact-btn, .peek-c
 .account-btn svg{ width:16px; height:16px; }
 .account-btn-initial{ font-family:'Inter',sans-serif; font-weight:700; font-size:13px; color:var(--accent-2); }
 
+/* Contenedor propio y relativo, separado de la píldora .chrome-right —
+   así el menú se ancla exactamente al botón, no a toda la barra
+   superior derecha (que incluye otros elementos con su propio padding). */
+.account-wrap{ position:relative; display:flex; }
 .account-menu{
-  position:absolute; top:calc(100% + 10px); right:0; width:220px; padding:8px;
-  opacity:0; transform:translateY(-6px) scale(.97); pointer-events:none;
-  transition: opacity .2s ease, transform .2s cubic-bezier(.16,1,.3,1);
+  position:absolute; top:calc(100% + 10px); right:0;
+  width:max-content; min-width:180px; max-width:240px; padding:8px;
+  opacity:0; visibility:hidden; transform:translateY(-6px) scale(.97); pointer-events:none;
+  transition: opacity .2s ease, transform .2s cubic-bezier(.16,1,.3,1), visibility 0s linear .2s;
 }
-.account-menu.show{ opacity:1; transform:translateY(0) scale(1); pointer-events:auto; }
+.account-menu.show{
+  opacity:1; visibility:visible; transform:translateY(0) scale(1); pointer-events:auto;
+  transition: opacity .2s ease, transform .2s cubic-bezier(.16,1,.3,1), visibility 0s linear 0s;
+}
 .account-menu-head{ padding:8px 10px 10px; border-bottom:1px solid var(--border-glass); margin-bottom:6px; }
-.account-menu-name{ font-size:13px; font-weight:700; color:var(--text-primary); }
-.account-menu-sub{ font-size:10.5px; color:var(--text-tertiary); margin-top:2px; }
+.account-menu-name{ font-size:13px; font-weight:700; color:var(--text-primary); white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
+.account-menu-sub{ font-size:10.5px; color:var(--text-tertiary); margin-top:2px; white-space:nowrap; overflow:hidden; text-overflow:ellipsis; }
 .account-menu-item{
   width:100%; display:flex; align-items:center; gap:9px; padding:10px; border-radius:var(--radius-sm);
   border:none; background:transparent; color:var(--text-primary); font-family:inherit; font-size:12px; font-weight:600;
@@ -1141,6 +1149,7 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
   </div>
 
  <div class="chrome-right">
+    <div class="account-wrap">
     <button class="account-btn" id="accountBtn" aria-label="Cuenta">
       <span id="accountBtnAvatar"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="8" r="3.4"/><path d="M5 20c1.5-4 5-5.5 7-5.5s5.5 1.5 7 5.5" stroke-linecap="round"/></svg></span>
     </button>
@@ -1153,10 +1162,11 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 18h.01M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5" stroke-linecap="round"/><circle cx="12" cy="12" r="9.5"/></svg>
         <span>Ayuda</span>
       </button>
-      <button class="account-menu-item" id="accountMenuAuthAction">
+     <button class="account-menu-item" id="accountMenuAuthAction">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
         <span id="accountMenuAuthLabel">Iniciar sesión</span>
       </button>
+    </div>
     </div>
   </div>
 
