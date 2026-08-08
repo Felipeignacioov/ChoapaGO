@@ -1707,7 +1707,7 @@ function addPOILayer(rawPois) {
    aparte). Solo multiplica las expresiones de opacidad ya existentes —
    no toca zoom, tamaño, selección táctil ni ninguna otra propiedad.
    Llamado con `false`, los POI recuperan su visibilidad normal. */
-const POI_DIM_FACTOR = 0.57;
+const POI_DIM_FACTOR = 0.65;
 function setPOIRouteEmphasis(active) {
   if (!map.getLayer('poi-layer') || !POI_ICON_OPACITY_NORMAL || !POI_TEXT_OPACITY_NORMAL) return;
   map.setPaintProperty('poi-layer', 'icon-opacity', active ? POI_ICON_OPACITY_DIMMED : POI_ICON_OPACITY_NORMAL);
