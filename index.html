@@ -2530,7 +2530,11 @@ function pickNextTarget() {
   // vehículo mantiene una sensación de ritmo pareja tramo a tramo.
   const segDistM = Math.abs(nextT - travelT) * ROUTE_TOTAL * METERS_PER_DEGREE;
   const speedMps = CAR_AVG_SPEED_MPS * (0.85 + Math.random() * 0.3);
-  const duration = Math.max(900, (segDistM / speedMps) * 1000);
+  // Techo de 5.5s por tramo: la velocidad "realista" (proporcional a la
+  // distancia real) se mantiene para tramos cortos, pero en rutas largas
+  // evita que el auto tarde minutos en moverse de forma visible durante
+  // la demo — nunca se ve "pegado" esperando.
+  const duration = Math.min(5500, Math.max(900, (segDistM / speedMps) * 1000));
 
   travel = { fromT: travelT, toT: nextT, tStart: performance.now(), duration };
   travelT = nextT;
