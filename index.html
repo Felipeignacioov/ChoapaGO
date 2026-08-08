@@ -809,6 +809,123 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
   .searching-card{ width:80vw; max-width:280px; }
 }
 @media (max-width:420px){ .brand-word{ display:none; } }
+     /* ==================== AUTH: bienvenida / registro / login ====================
+   Reutiliza design tokens existentes (--accent-2, --glass-fill, --radius-lg,
+   --blur-lg) — misma identidad visual del resto de la app, no un flujo aparte. */
+.auth-overlay{
+  position:fixed; inset:0; z-index:60; background:var(--bg-deep);
+  display:flex; align-items:center; justify-content:center;
+  opacity:1; visibility:visible; transition: opacity .5s ease, visibility 0s linear 0s;
+  overflow:hidden;
+}
+.auth-overlay.hide{ opacity:0; pointer-events:none; visibility:hidden; transition: opacity .5s ease, visibility 0s linear .5s; }
+.auth-overlay.no-anim{ transition:none; }
+.auth-atmosphere{
+  position:absolute; inset:0; pointer-events:none;
+  background:
+    radial-gradient(ellipse 60% 50% at 50% -8%, rgba(16,185,129,0.14) 0%, transparent 60%),
+    radial-gradient(ellipse 55% 45% at 100% 108%, rgba(45,212,191,0.1) 0%, transparent 60%);
+}
+.auth-screen{
+  display:none; flex-direction:column; width:100%; max-width:380px; padding:32px 26px;
+  position:relative; z-index:1;
+}
+.auth-overlay[data-step="welcome"] .auth-screen[data-screen="welcome"],
+.auth-overlay[data-step="phone"] .auth-screen[data-screen="phone"],
+.auth-overlay[data-step="otp"] .auth-screen[data-screen="otp"],
+.auth-overlay[data-step="email"] .auth-screen[data-screen="email"],
+.auth-overlay[data-step="email-sent"] .auth-screen[data-screen="email-sent"],
+.auth-overlay[data-step="profile"] .auth-screen[data-screen="profile"]{
+  display:flex; animation: authScreenIn .45s cubic-bezier(.16,1,.3,1) both;
+}
+@keyframes authScreenIn{ from{ opacity:0; transform:translateY(10px);} to{ opacity:1; transform:translateY(0);} }
+
+.auth-brand{ display:flex; flex-direction:column; align-items:center; gap:14px; margin-bottom:36px; animation: authScreenIn .6s .05s cubic-bezier(.16,1,.3,1) both; }
+.auth-brand-mark{ width:64px; height:64px; border-radius:20px; background:radial-gradient(circle at 32% 30%, var(--accent-3), var(--accent-1) 72%); display:flex; align-items:center; justify-content:center; box-shadow:0 0 0 1px rgba(16,185,129,0.18), 0 18px 40px rgba(5,150,105,0.32); }
+.auth-brand-mark svg{ width:32px; height:32px; }
+.auth-brand-word{ font-family:'Inter',sans-serif; font-weight:800; font-size:22px; letter-spacing:-0.02em; }
+.auth-brand-word span{ color:var(--accent-2); }
+
+.auth-welcome-copy{ text-align:center; margin-bottom:34px; }
+.auth-welcome-copy h1{ font-family:'Inter',sans-serif; font-weight:700; font-size:21px; letter-spacing:-0.015em; line-height:1.28; color:var(--text-primary); }
+.auth-welcome-copy p{ font-size:13px; color:var(--text-secondary); margin-top:10px; line-height:1.5; }
+
+.auth-screen h2{ font-family:'Inter',sans-serif; font-weight:700; font-size:19px; letter-spacing:-0.014em; margin-bottom:6px; }
+.auth-sub{ font-size:12.5px; color:var(--text-secondary); line-height:1.5; margin-bottom:26px; }
+.auth-sub-strong{ color:var(--text-primary); font-weight:600; }
+
+.auth-actions{ display:flex; flex-direction:column; gap:10px; }
+.auth-btn-primary{
+  width:100%; padding:16px; border-radius:var(--radius-lg); border:1px solid rgba(16,185,129,0.4);
+  background:linear-gradient(150deg, var(--accent-2), var(--accent-1) 78%); color:#06120D;
+  font-weight:800; font-size:14.5px; letter-spacing:.01em; cursor:pointer; font-family:inherit;
+  display:flex; align-items:center; justify-content:center; gap:8px;
+  box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+  transition: transform .15s ease, box-shadow .2s ease, opacity .2s ease;
+}
+.auth-btn-primary svg{ width:17px; height:17px; }
+.auth-btn-primary:active{ transform:scale(.98); }
+.auth-btn-primary:disabled{ opacity:.5; cursor:not-allowed; box-shadow:none; }
+.auth-btn-spinner{ display:none; width:16px; height:16px; animation: btnSpin .8s linear infinite; }
+.auth-btn-primary.loading .auth-btn-spinner{ display:block; }
+.auth-btn-primary.loading #authPhoneSubmitLabel{ opacity:.6; }
+.auth-btn-secondary{
+  width:100%; padding:15px; border-radius:var(--radius-lg); border:1px solid var(--border-glass-strong);
+  background:rgba(255,255,255,0.03); color:var(--text-primary); font-weight:600; font-size:13.5px;
+  cursor:pointer; font-family:inherit; transition: background .2s ease, transform .15s ease;
+}
+.auth-btn-secondary:active{ transform:scale(.98); background:rgba(255,255,255,0.06); }
+.auth-footnote{ margin-top:20px; font-size:10px; color:var(--text-tertiary); text-align:center; line-height:1.5; }
+
+.auth-back{
+  width:34px; height:34px; border-radius:50%; border:1px solid var(--border-glass); background:rgba(255,255,255,0.03);
+  color:var(--text-secondary); display:flex; align-items:center; justify-content:center; cursor:pointer;
+  margin-bottom:22px; transition: background .2s ease, color .2s ease;
+}
+.auth-back svg{ width:16px; height:16px; }
+.auth-back:active{ background:rgba(255,255,255,0.08); color:var(--text-primary); }
+
+.auth-phone-field{
+  display:flex; align-items:center; gap:10px; padding:15px 16px; border-radius:var(--radius-md);
+  background:rgba(255,255,255,0.03); border:1px solid var(--border-glass); margin-bottom:6px;
+  transition: border-color .2s ease, background .2s ease;
+}
+.auth-phone-field:focus-within{ border-color:rgba(16,185,129,0.4); background:rgba(5,150,105,0.06); }
+.auth-phone-prefix{ font-size:14px; font-weight:600; color:var(--text-secondary); flex-shrink:0; padding-right:10px; border-right:1px solid var(--border-glass); }
+.auth-phone-field input{ flex:1; background:transparent; border:none; outline:none; color:var(--text-primary); font-size:16px; font-weight:600; font-family:inherit; letter-spacing:.02em; }
+.auth-phone-field input::placeholder{ color:var(--text-tertiary); font-weight:500; }
+
+.auth-field-input{
+  padding:15px 16px; border-radius:var(--radius-md); background:rgba(255,255,255,0.03);
+  border:1px solid var(--border-glass); margin-bottom:6px; transition: border-color .2s ease, background .2s ease;
+}
+.auth-field-input:focus-within{ border-color:rgba(16,185,129,0.4); background:rgba(5,150,105,0.06); }
+.auth-field-input input{ width:100%; background:transparent; border:none; outline:none; color:var(--text-primary); font-size:15px; font-weight:600; font-family:inherit; }
+.auth-field-input input::placeholder{ color:var(--text-tertiary); font-weight:500; }
+
+.auth-error{ min-height:16px; font-size:11.5px; color:#ffb3ab; margin:8px 2px 18px; line-height:1.4; }
+
+.auth-otp-row{ display:flex; gap:9px; margin-bottom:6px; }
+.auth-otp-digit{
+  flex:1; aspect-ratio:1; min-width:0; text-align:center; font-size:20px; font-weight:700;
+  border-radius:var(--radius-sm); background:rgba(255,255,255,0.03); border:1px solid var(--border-glass);
+  color:var(--text-primary); font-family:inherit; outline:none; transition: border-color .2s ease, background .2s ease, transform .12s ease;
+}
+.auth-otp-digit:focus{ border-color:rgba(16,185,129,0.5); background:rgba(5,150,105,0.08); transform:scale(1.04); }
+.auth-otp-digit.filled{ border-color:rgba(16,185,129,0.3); }
+.auth-otp-digit.shake{ animation: authOtpShake .4s ease; border-color:rgba(255,90,80,0.5); }
+@keyframes authOtpShake{ 0%,100%{ transform:translateX(0);} 20%{ transform:translateX(-5px);} 40%{ transform:translateX(5px);} 60%{ transform:translateX(-3px);} 80%{ transform:translateX(3px);} }
+
+.auth-resend{ margin-top:16px; background:transparent; border:none; color:var(--text-tertiary); font-size:12px; font-weight:600; font-family:inherit; cursor:pointer; text-align:center; }
+.auth-resend:not(:disabled){ color:var(--accent-2); cursor:pointer; }
+.auth-resend:disabled{ cursor:default; }
+
+.auth-check-icon{ width:52px; height:52px; border-radius:50%; background:rgba(16,185,129,0.12); border:1px solid rgba(16,185,129,0.3); color:var(--accent-2); display:flex; align-items:center; justify-content:center; margin:0 auto 20px; }
+.auth-check-icon svg{ width:26px; height:26px; }
+.auth-screen[data-screen="email-sent"]{ text-align:center; align-items:center; }
+.auth-screen[data-screen="email-sent"] .auth-btn-primary{ margin-top:6px; }
+
+@media (max-width:420px){ .auth-screen{ padding:26px 22px; max-width:100%; } }
 button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline-offset:2px; }
 </style>
 </head>
@@ -876,6 +993,89 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
     </div>
   </div>
 </div>
+<div class="auth-overlay" id="authOverlay" data-step="welcome">
+  <div class="auth-atmosphere"></div>
+
+  <div class="auth-screen" data-screen="welcome">
+    <div class="auth-brand">
+      <div class="auth-brand-mark"><svg viewBox="0 0 24 24" fill="none"><path d="M12 2C7.6 2 4 5.6 4 10c0 6 8 12 8 12s8-6 8-12c0-4.4-3.6-8-8-8z" fill="#fff"/><circle cx="12" cy="10" r="3" fill="#059669"/></svg></div>
+      <div class="auth-brand-word">Choapa<span>GO</span></div>
+    </div>
+    <div class="auth-welcome-copy">
+      <h1>Movilidad real para el Valle del Choapa</h1>
+      <p>Pide un viaje, guarda tus lugares y muévete seguro por Salamanca y sus alrededores.</p>
+    </div>
+    <div class="auth-actions">
+      <button class="auth-btn-primary" id="authStartPhone">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="7" y="2" width="10" height="20" rx="2"/><path d="M11 18h2" stroke-linecap="round"/></svg>
+        Continuar con mi número
+      </button>
+      <button class="auth-btn-secondary" id="authStartEmail">Continuar con correo electrónico</button>
+    </div>
+    <div class="auth-footnote">Al continuar aceptas los Términos y la Política de Privacidad</div>
+  </div>
+
+  <div class="auth-screen" data-screen="phone">
+    <button class="auth-back" data-back="welcome" aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <h2>Tu número de teléfono</h2>
+    <p class="auth-sub">Te enviaremos un código de verificación por SMS</p>
+    <div class="auth-phone-field">
+      <span class="auth-phone-prefix">🇨🇱 +56</span>
+      <input id="authPhoneInput" type="tel" inputmode="numeric" placeholder="9 1234 5678" maxlength="11" />
+    </div>
+    <div class="auth-error" id="authPhoneError"></div>
+    <button class="auth-btn-primary" id="authPhoneSubmit">
+      <span id="authPhoneSubmitLabel">Enviar código</span>
+      <svg class="auth-btn-spinner" id="authPhoneSpinner" viewBox="0 0 24 24" fill="none"><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.4" opacity=".25"/><circle cx="12" cy="12" r="9" stroke="currentColor" stroke-width="2.4" stroke-linecap="round" stroke-dasharray="34" stroke-dashoffset="22"/></svg>
+    </button>
+  </div>
+
+  <div class="auth-screen" data-screen="otp">
+    <button class="auth-back" data-back="phone" aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <h2>Ingresa el código</h2>
+    <p class="auth-sub">Enviamos un código de 6 dígitos a <span id="authOtpPhoneShown" class="auth-sub-strong"></span></p>
+    <div class="auth-otp-row" id="authOtpRow">
+      <input class="auth-otp-digit" maxlength="1" inputmode="numeric" autocomplete="one-time-code" />
+      <input class="auth-otp-digit" maxlength="1" inputmode="numeric" />
+      <input class="auth-otp-digit" maxlength="1" inputmode="numeric" />
+      <input class="auth-otp-digit" maxlength="1" inputmode="numeric" />
+      <input class="auth-otp-digit" maxlength="1" inputmode="numeric" />
+      <input class="auth-otp-digit" maxlength="1" inputmode="numeric" />
+    </div>
+    <div class="auth-error" id="authOtpError"></div>
+    <button class="auth-btn-primary" id="authOtpSubmit" disabled>Verificar</button>
+    <button class="auth-resend" id="authResendBtn" disabled>Reenviar código (<span id="authResendTimer">30</span>s)</button>
+  </div>
+
+  <div class="auth-screen" data-screen="email">
+    <button class="auth-back" data-back="welcome" aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+    <h2>Continuar con correo</h2>
+    <p class="auth-sub">Te enviaremos un enlace de acceso a tu correo</p>
+    <div class="auth-field-input">
+      <input id="authEmailInput" type="email" placeholder="tu@correo.com" autocomplete="email" />
+    </div>
+    <div class="auth-error" id="authEmailError"></div>
+    <button class="auth-btn-primary" id="authEmailSubmit">Enviar enlace</button>
+  </div>
+
+  <div class="auth-screen" data-screen="email-sent">
+    <div class="auth-check-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M4 12l5 5L20 6" stroke-linecap="round" stroke-linejoin="round"/></svg></div>
+    <h2>Revisa tu correo</h2>
+    <p class="auth-sub">Enviamos un enlace de acceso a <span id="authEmailShown" class="auth-sub-strong"></span></p>
+    <button class="auth-btn-primary" id="authEmailSimulateBtn">He confirmado mi correo</button>
+    <div class="auth-footnote">Modo demo: sin servidor de correo real, este botón simula abrir el enlace</div>
+  </div>
+
+  <div class="auth-screen" data-screen="profile">
+    <h2>Un último paso</h2>
+    <p class="auth-sub">¿Cómo quieres que te llamemos?</p>
+    <div class="auth-field-input">
+      <input id="authNameInput" type="text" placeholder="Tu nombre" maxlength="40" autocomplete="given-name" />
+    </div>
+    <button class="auth-btn-primary" id="authProfileSubmit">Empezar a viajar</button>
+  </div>
+</div>
+     
 <div class="map-loading" id="mapLoading">
   <div class="map-loading-spinner"></div>
   <div class="map-loading-text">Cargando el mapa…</div>
