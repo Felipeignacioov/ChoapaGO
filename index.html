@@ -790,6 +790,13 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
     -webkit-backdrop-filter: var(--blur-lg);
     border-color: rgba(16,185,129,0.22);
     box-shadow: 0 -28px 68px rgba(0,0,0,0.58), 0 0 0 1px rgba(16,185,129,0.1), inset 0 1px 0 rgba(255,255,255,0.07);
+    /* --vk-height (medido en JS) es el alto real del teclado cuando está
+       abierto — se agrega como espacio extra al final del contenido
+       scrolleable, así los chips/resultados de más abajo dejan de
+       quedar tapados por el teclado en vez de solo "recortados". */
+    padding-bottom: calc(14px + env(safe-area-inset-bottom) + var(--vk-height, 0px));
+    transition: height .45s cubic-bezier(.16,1,.3,1), min-height .45s cubic-bezier(.16,1,.3,1),
+                background .5s ease, border-color .5s ease, box-shadow .5s ease, padding-bottom .25s ease;
   }
   .request-card[data-sheet="expanded"]::before{
     background: linear-gradient(90deg, transparent, rgba(16,185,129,0.6), transparent);
@@ -3218,8 +3225,21 @@ async function repositionPOIMarkers() {
   map.resize();
 }
 window.addEventListener('orientationchange', () => repositionPOIMarkers());
+
+/* En Android/Chrome, abrir el teclado NO reduce el alto "de layout" de
+   la página (el que usan vh/dvh) — solo reduce el visualViewport (lo que
+   realmente se ve). Se mide esa diferencia y se expone como variable CSS
+   (--vk-height) para poder darle margen extra a la tarjeta expandida
+   mientras el teclado está abierto, y para saber cuánto hay que
+   desplazar el campo activo al hacer scroll. */
+let vkHeight = 0;
+function updateKeyboardInset() {
+  if (!window.visualViewport) return;
+  vkHeight = Math.max(0, window.innerHeight - window.visualViewport.height);
+  document.documentElement.style.setProperty('--vk-height', vkHeight + 'px');
+}
 if (window.visualViewport) {
-  window.visualViewport.addEventListener('resize', () => repositionPOIMarkers());
+  window.visualViewport.addEventListener('resize', () => { repositionPOIMarkers(); updateKeyboardInset(); });
 }
 
 /* ---------- G. LEGIBILIDAD: mapa más claro, calles con mejor contraste -----------
@@ -4152,7 +4172,18 @@ function setupAutocomplete(input, list, onSelect, showSaved = false) {
   input.addEventListener('focus', () => {
     input.dispatchEvent(new Event('input'));
     setSheet('expanded');
-    setTimeout(() => { input.scrollIntoView({ block: 'nearest', behavior: 'smooth' }); }, 260);
+    // En vez de esperar un tiempo fijo (que podía disparar el scroll
+    // antes de que el teclado terminara de aparecer, o innecesariamente
+    // tarde), se espera al evento real de que el visualViewport cambió
+    // de tamaño — ahí sí ya se sabe cuánto ocupa el teclado.
+    const doScroll = () => input.scrollIntoView({ block: 'center', behavior: 'smooth' });
+    if (window.visualViewport) {
+      const onResize = () => { window.visualViewport.removeEventListener('resize', onResize); doScroll(); };
+      window.visualViewport.addEventListener('resize', onResize);
+      setTimeout(() => { window.visualViewport.removeEventListener('resize', onResize); doScroll(); }, 500); // respaldo si el resize nunca llega
+    } else {
+      setTimeout(doScroll, 260);
+    }
   });
   onGlobalClick((e) => {
     if (!input.closest('.field').contains(e.target)) list.classList.remove('show');
