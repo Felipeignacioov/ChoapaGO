@@ -101,6 +101,11 @@ button, a, .icon-btn, .help-pill, .swap-btn, .service-opt, .contact-btn, .peek-c
   box-shadow:0 6px 20px rgba(0,0,0,0.3) !important;
   border-radius:11px !important; overflow:hidden;
 }
+/* Los controles de zoom (+/-) de MapLibre se anclan en la misma esquina
+   que .chrome-right y el menú de cuenta que se abre debajo de él — se
+   les da margen suficiente para que nunca queden tapados, esté el menú
+   abierto o cerrado. */
+.maplibregl-ctrl-top-right{ margin-top:200px !important; }
 .maplibregl-ctrl-group button{ background:transparent !important; width:30px !important; height:30px !important; }
 .maplibregl-ctrl-group button + button{ border-top:1px solid var(--border-glass) !important; }
 .maplibregl-ctrl-group button .maplibregl-ctrl-icon{ filter: invert(1) brightness(1.6) opacity(0.85); }
