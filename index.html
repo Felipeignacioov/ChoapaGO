@@ -997,6 +997,101 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
 
 @media (max-width:420px){ .auth-screen{ padding:26px 22px; max-width:100%; } }
 @media (min-width:640px){ .auth-screen{ padding:16px 26px; } }
+/* ==================== EXPLORAR CHOAPA ==================== */
+.explore-overlay{
+  position:fixed; inset:0; z-index:55; background:var(--bg-deep);
+  transform:translateY(100%); transition: transform .4s cubic-bezier(.16,1,.3,1);
+  overflow:hidden;
+}
+.explore-overlay.show{ transform:translateY(0); }
+.explore-scroll{ height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:calc(28px + env(safe-area-inset-bottom)); }
+
+.explore-header{ padding:calc(16px + env(safe-area-inset-top)) 20px 4px; position:relative; }
+.explore-back{
+  width:38px; height:38px; border-radius:50%; border:1px solid var(--border-glass);
+  background:rgba(255,255,255,0.04); color:var(--accent-2); display:flex; align-items:center; justify-content:center;
+  cursor:pointer; margin-bottom:14px; transition: background .2s ease;
+}
+.explore-back:active{ background:rgba(255,255,255,0.08); }
+.explore-back svg{ width:18px; height:18px; }
+.explore-title{ font-family:'Inter',sans-serif; font-weight:800; font-size:26px; letter-spacing:-0.02em; color:var(--text-primary); }
+.explore-title span{ color:var(--accent-2); }
+.explore-subtitle{ font-size:13px; color:var(--text-secondary); margin-top:4px; }
+
+.explore-search{
+  display:flex; align-items:center; gap:10px; margin-top:18px; padding:14px 16px; border-radius:var(--radius-lg);
+  background:rgba(255,255,255,0.03); border:1px solid var(--border-glass);
+  transition: border-color .2s ease, background .2s ease;
+}
+.explore-search:focus-within{ border-color:rgba(16,185,129,0.35); background:rgba(5,150,105,0.05); }
+.explore-search svg{ width:17px; height:17px; color:var(--text-tertiary); flex-shrink:0; }
+.explore-search input{ flex:1; background:transparent; border:none; outline:none; color:var(--text-primary); font-size:13px; font-family:inherit; }
+.explore-search input::placeholder{ color:var(--text-tertiary); }
+
+.explore-categories-row{
+  display:flex; gap:10px; overflow-x:auto; padding:20px 20px 4px; -webkit-overflow-scrolling:touch;
+  scroll-snap-type:x proximity;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 30px), transparent 100%);
+}
+.explore-categories-row::-webkit-scrollbar{ display:none; }
+.explore-cat-card{
+  flex-shrink:0; width:112px; padding:14px 10px; border-radius:var(--radius-md);
+  background: linear-gradient(165deg, rgba(255,255,255,0.045), rgba(255,255,255,0.01));
+  border:1px solid var(--border-glass); text-align:center; scroll-snap-align:start;
+  cursor:pointer; transition: border-color .2s ease, transform .12s ease;
+}
+.explore-cat-card:active{ transform:scale(.96); }
+.explore-cat-icon{ width:42px; height:42px; border-radius:50%; display:flex; align-items:center; justify-content:center; margin:0 auto 9px; }
+.explore-cat-icon svg{ width:20px; height:20px; color:#fff; }
+.explore-cat-name{ font-size:12px; font-weight:700; color:var(--text-primary); }
+.explore-cat-desc{ font-size:9.5px; color:var(--text-tertiary); margin-top:3px; line-height:1.3; }
+
+.explore-section{ padding:24px 20px 4px; }
+.explore-section-head{ display:flex; align-items:center; justify-content:space-between; margin-bottom:12px; }
+.explore-section-title{ font-family:'Inter',sans-serif; font-weight:700; font-size:15px; letter-spacing:-0.01em; display:flex; align-items:center; gap:6px; }
+
+.explore-place-card{
+  display:flex; gap:12px; padding:12px; border-radius:var(--radius-lg); margin-bottom:12px;
+  background: linear-gradient(165deg, rgba(19,24,30,0.6), rgba(11,14,18,0.54) 55%, rgba(9,12,16,0.56));
+  border:1px solid var(--border-glass);
+}
+.explore-place-img{
+  width:88px; height:88px; border-radius:var(--radius-md); flex-shrink:0;
+  display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.65);
+}
+.explore-place-img svg{ width:26px; height:26px; }
+.explore-place-body{ flex:1; min-width:0; display:flex; flex-direction:column; }
+.explore-place-name{ font-size:13.5px; font-weight:700; color:var(--text-primary); }
+.explore-place-loc{ display:flex; align-items:center; gap:4px; font-size:10.5px; color:var(--accent-2); margin-top:3px; }
+.explore-place-loc svg{ width:10px; height:10px; }
+.explore-place-desc{ font-size:11px; color:var(--text-secondary); margin-top:5px; line-height:1.4; flex:1; }
+.explore-go-btn{
+  margin-top:8px; align-self:flex-start; display:flex; align-items:center; gap:5px; padding:7px 13px; border-radius:999px;
+  background:rgba(16,185,129,0.14); border:1px solid rgba(16,185,129,0.32); color:var(--accent-2);
+  font-size:11px; font-weight:700; font-family:inherit; cursor:pointer; transition: background .15s ease, transform .12s ease;
+}
+.explore-go-btn:active{ transform:scale(.96); background:rgba(16,185,129,0.22); }
+.explore-go-btn svg{ width:11px; height:11px; }
+
+.explore-recs-row{ display:flex; gap:12px; overflow-x:auto; -webkit-overflow-scrolling:touch; scroll-snap-type:x proximity;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 30px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 30px), transparent 100%);
+}
+.explore-recs-row::-webkit-scrollbar{ display:none; }
+.explore-rec-card{
+  flex-shrink:0; width:150px; border-radius:var(--radius-md); overflow:hidden; scroll-snap-align:start;
+  background: linear-gradient(165deg, rgba(19,24,30,0.6), rgba(11,14,18,0.54) 55%, rgba(9,12,16,0.56));
+  border:1px solid var(--border-glass);
+}
+.explore-rec-img{ height:88px; display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.6); position:relative; }
+.explore-rec-img svg{ width:22px; height:22px; }
+.explore-rec-tag{ position:absolute; top:7px; left:7px; padding:3px 8px; border-radius:999px; font-size:8.5px; font-weight:700; color:#fff; }
+.explore-rec-body{ padding:10px; }
+.explore-rec-name{ font-size:12px; font-weight:700; color:var(--text-primary); }
+.explore-rec-loc{ font-size:10px; color:var(--text-tertiary); margin-top:2px; }
+.explore-rec-go{ margin-top:8px; display:flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; color:var(--accent-2); background:none; border:none; padding:0; cursor:pointer; font-family:inherit; }
+.explore-rec-go svg{ width:10px; height:10px; }
 button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline-offset:2px; }
 </style>
 </head>
@@ -1146,6 +1241,28 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
     <button class="auth-btn-primary" id="authProfileSubmit">Empezar a viajar</button>
   </div>
 </div>
+  <div class="explore-overlay" id="exploreOverlay">
+  <div class="explore-scroll">
+    <div class="explore-header">
+      <button class="explore-back" id="exploreBack" aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <h1 class="explore-title">Explorar <span>Choapa</span></h1>
+      <p class="explore-subtitle">Descubre los mejores lugares del Choapa</p>
+      <div class="explore-search">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="11" cy="11" r="7"/><path d="M21 21l-4.35-4.35" stroke-linecap="round"/></svg>
+        <input type="text" placeholder="Buscar lugares, categorías o actividades…" id="exploreSearchInput" />
+      </div>
+    </div>
+    <div class="explore-categories-row" id="exploreCategoriesRow"></div>
+    <div class="explore-section">
+      <div class="explore-section-head"><div class="explore-section-title">🔥 Lugares populares</div></div>
+      <div class="explore-places-list" id="explorePlacesList"></div>
+    </div>
+    <div class="explore-section">
+      <div class="explore-section-head"><div class="explore-section-title">Recomendados para ti</div></div>
+      <div class="explore-recs-row" id="exploreRecsRow"></div>
+    </div>
+  </div>
+</div>
      
 <div class="map-loading" id="mapLoading">
   <div class="map-loading-spinner"></div>
@@ -1189,6 +1306,10 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
       <button class="account-menu-item" id="accountMenuHelp">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 18h.01M9.5 9a2.5 2.5 0 0 1 5 0c0 1.5-2.5 2-2.5 3.5" stroke-linecap="round"/><circle cx="12" cy="12" r="9.5"/></svg>
         <span>Ayuda</span>
+      </button>
+     <button class="account-menu-item" id="accountMenuExplore">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11z" stroke-linejoin="round"/><path d="M9.5 10.5l2-3.5 2 3.5-2 3.5-2-3.5z" stroke-linejoin="round"/></svg>
+        <span>Explorar Choapa</span>
       </button>
      <button class="account-menu-item" id="accountMenuAuthAction">
         <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 3h4a2 2 0 0 1 2 2v14a2 2 0 0 1-2 2h-4M10 17l5-5-5-5M15 12H3" stroke-linecap="round" stroke-linejoin="round"/></svg>
@@ -2371,7 +2492,108 @@ document.getElementById('accountMenuHelp').addEventListener('click', () => {
   closeAccountMenu();
   showToast('Centro de ayuda: próximamente');
 });
+document.getElementById('accountMenuExplore').addEventListener('click', () => {
+  closeAccountMenu();
+  openExploreScreen();
+});
 
+/* ---------- Explorar Choapa ---------- */
+const EXPLORE_CATEGORIES = [
+  { name: 'Comida', desc: 'Restaurantes y cafeterías', color: '#D97B3E', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 2v7a2 2 0 0 0 4 0V2M8 9v13M17 2c-2 0-3 2-3 5s1 4 3 4 0 8 0 11" stroke-linecap="round" stroke-linejoin="round"/></svg>' },
+  { name: 'Hoteles', desc: 'Alojamientos y hospedajes', color: '#2E6BD1', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><rect x="3" y="10" width="18" height="9" rx="1.5"/><path d="M3 14h18M7 10V7a2 2 0 0 1 2-2h6a2 2 0 0 1 2 2v3" stroke-linejoin="round"/></svg>' },
+  { name: 'Atracciones', desc: 'Lugares turísticos y naturaleza', color: '#0F9D58', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M4 20l6-11 4 6 2-3 4 8H4z" stroke-linejoin="round"/></svg>' },
+  { name: 'Compras', desc: 'Tiendas y servicios', color: '#7C3AED', icon: '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 8h12l-1 12H7L6 8z" stroke-linejoin="round"/><path d="M9 8V6a3 3 0 0 1 6 0v2" stroke-linecap="round"/></svg>' },
+  { name: 'Populares', desc: 'Los más visitados', color: '#D4A72C', icon: '<svg viewBox="0 0 20 20" fill="currentColor"><path d="M10 1.5l2.6 5.6 6.1.6-4.6 4.1 1.4 6-5.5-3.2-5.5 3.2 1.4-6-4.6-4.1 6.1-.6z"/></svg>' }
+];
+
+/* Solo lugares reales del valle del Choapa, verificados en esta misma
+   sesión (mismos que ya usa el mapa como POI/meetpoint). Los que tienen
+   coordenada real permiten "Ir hasta aquí" de verdad; los que no, avisan
+   que la ubicación exacta llega pronto — nunca se inventa una coordenada. */
+const EXPLORE_PLACES = [
+  { name: 'Plaza de Armas de Salamanca', locality: 'Salamanca', desc: 'El corazón de Salamanca, punto de encuentro de la comuna.', coord: GEO.salamanca },
+  { name: 'Cerro La Cruz', locality: 'Salamanca', desc: 'Mirador natural sobre la ciudad de Salamanca.', coord: [-70.96003833805636, -31.769994473796096] },
+  { name: 'Río Choapa', locality: 'Valle del Choapa', desc: 'El río que da nombre y vida a todo el valle.', coord: null }
+];
+
+const EXPLORE_RECS = [
+  { name: 'Restaurante local', category: 'Comida', tagColor: '#D97B3E', locality: 'Salamanca' },
+  { name: 'Hospedaje local', category: 'Hotel', tagColor: '#2E6BD1', locality: 'Salamanca' },
+  { name: 'Mirador natural', category: 'Atracción', tagColor: '#0F9D58', locality: 'Valle del Choapa' },
+  { name: 'Cafetería local', category: 'Café', tagColor: '#8B5E34', locality: 'Salamanca' }
+];
+
+function exploreGoTo(place) {
+  if (!place.coord) { showToast('Ubicación exacta de "' + place.name + '" — próximamente'); return; }
+  if (busy) { showToast('Finaliza o cancela tu viaje actual para elegir otro destino'); return; }
+  currentDestination = { name: place.name, coord: place.coord };
+  toText.value = place.name;
+  closeExploreScreen();
+  rebuildTrip();
+  if (window.innerWidth <= 880) setSheet('mid');
+}
+
+function renderExploreScreen() {
+  const catRow = document.getElementById('exploreCategoriesRow');
+  if (catRow.childElementCount === 0) {
+    EXPLORE_CATEGORIES.forEach(cat => {
+      const card = document.createElement('div');
+      card.className = 'explore-cat-card';
+      card.innerHTML = `<div class="explore-cat-icon" style="background:${cat.color}">${cat.icon}</div>
+        <div class="explore-cat-name">${cat.name}</div><div class="explore-cat-desc">${cat.desc}</div>`;
+      catRow.appendChild(card);
+    });
+  }
+
+  const placesList = document.getElementById('explorePlacesList');
+  if (placesList.childElementCount === 0) {
+    EXPLORE_PLACES.forEach(place => {
+      const card = document.createElement('div');
+      card.className = 'explore-place-card';
+      card.innerHTML = `
+        <div class="explore-place-img" style="background:linear-gradient(150deg, rgba(16,185,129,0.18), rgba(16,185,129,0.04))">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11z" stroke-linejoin="round"/><circle cx="12" cy="10" r="2.4"/></svg>
+        </div>
+        <div class="explore-place-body">
+          <div class="explore-place-name">${place.name}</div>
+          <div class="explore-place-loc"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>${place.locality}</div>
+          <div class="explore-place-desc">${place.desc}</div>
+          <button class="explore-go-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>Ir hasta aquí</button>
+        </div>`;
+      card.querySelector('.explore-go-btn').addEventListener('click', () => exploreGoTo(place));
+      placesList.appendChild(card);
+    });
+  }
+
+  const recsRow = document.getElementById('exploreRecsRow');
+  if (recsRow.childElementCount === 0) {
+    EXPLORE_RECS.forEach(rec => {
+      const card = document.createElement('div');
+      card.className = 'explore-rec-card';
+      card.innerHTML = `
+        <div class="explore-rec-img" style="background:linear-gradient(150deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01))">
+          <span class="explore-rec-tag" style="background:${rec.tagColor}">${rec.category}</span>
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg>
+        </div>
+        <div class="explore-rec-body">
+          <div class="explore-rec-name">${rec.name}</div>
+          <div class="explore-rec-loc">${rec.locality}</div>
+          <button class="explore-rec-go"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>Ir hasta aquí</button>
+        </div>`;
+      card.querySelector('.explore-rec-go').addEventListener('click', () => showToast('"' + rec.name + '" — próximamente disponible'));
+      recsRow.appendChild(card);
+    });
+  }
+}
+
+function openExploreScreen() {
+  renderExploreScreen();
+  document.getElementById('exploreOverlay').classList.add('show');
+}
+function closeExploreScreen() {
+  document.getElementById('exploreOverlay').classList.remove('show');
+}
+document.getElementById('exploreBack').addEventListener('click', closeExploreScreen);
 document.getElementById('accountMenuAuthAction').addEventListener('click', () => {
   closeAccountMenu();
   const sess = AuthStore.getSession();
