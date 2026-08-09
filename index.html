@@ -94,21 +94,21 @@ button, a, .icon-btn, .help-pill, .swap-btn, .service-opt, .contact-btn, .peek-c
   position:fixed; inset:0; z-index:2; pointer-events:none;
   background: linear-gradient(180deg, rgba(232,196,140,0.0495) 0%, rgba(232,196,140,0.018) 13%, rgba(232,196,140,0) 26%);
 }
+/* Controles de zoom/centrado: son utilitarios, no deben competir
+   visualmente con la ruta, el destino ni el panel principal — se
+   atenúan un 25% (mismo criterio que ya usamos para las calles
+   secundarias), pero siguen leyéndose claramente como botones. */
 .maplibregl-ctrl-group{
   background: var(--glass-fill) !important;
   border:1px solid var(--border-glass) !important;
   backdrop-filter: var(--blur-sm); -webkit-backdrop-filter: var(--blur-sm);
   box-shadow:0 6px 20px rgba(0,0,0,0.3) !important;
   border-radius:11px !important; overflow:hidden;
+  opacity:0.75;
 }
-/* Los controles de zoom (+/-) de MapLibre se anclan en la misma esquina
-   que .chrome-right y el menú de cuenta que se abre debajo de él — se
-   les da margen suficiente para que nunca queden tapados, esté el menú
-   abierto o cerrado. */
-.maplibregl-ctrl-top-right{ margin-top:200px !important; }
 .maplibregl-ctrl-group button{ background:transparent !important; width:30px !important; height:30px !important; }
 .maplibregl-ctrl-group button + button{ border-top:1px solid var(--border-glass) !important; }
-.maplibregl-ctrl-group button .maplibregl-ctrl-icon{ filter: invert(1) brightness(1.6) opacity(0.85); }
+.maplibregl-ctrl-group button .maplibregl-ctrl-icon{ filter: invert(1) brightness(1.6) opacity(0.64); }
 .maplibregl-ctrl-attrib{
   background: rgba(10,13,17,0.5) !important; color:var(--text-tertiary) !important;
   font-size:9px !important; backdrop-filter: var(--blur-sm); -webkit-backdrop-filter: var(--blur-sm);
