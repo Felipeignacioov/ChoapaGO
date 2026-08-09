@@ -4114,7 +4114,21 @@ function renderList(list, results, onSelect, input, isDefault, showSaved) {
   }
   list.classList.add('show');
 }
-
+/* Busca coincidencias dentro de Casa/Trabajo/Gimnasio/Favoritos por
+   nombre — se antepone a los resultados de LOCATIONS y de Nominatim,
+   tal como se pidió ("idealmente antes que los resultados externos"). */
+function getSavedPlacesMatching(qn) {
+  const matches = [];
+  ['home', 'work', 'gym'].forEach(key => {
+    const p = savedPlaces[key];
+    if (p && normalize(p.name).includes(qn)) matches.push({ name: p.name, coord: p.coord });
+  });
+  savedPlaces.favorites.forEach(f => {
+    if (normalize(f.name).includes(qn)) matches.push({ name: f.name, coord: f.coord });
+  });
+  return matches;
+}
+     
 function setupAutocomplete(input, list, onSelect, showSaved = false) {
   let debounceT;
   input.addEventListener('input', () => {
@@ -4122,7 +4136,10 @@ function setupAutocomplete(input, list, onSelect, showSaved = false) {
     const q = input.value.trim();
     const qn = normalize(q);
     const isDefault = q.length === 0;
-    let results = q.length ? LOCATIONS.filter(l => normalize(l.name).includes(qn)) : LOCATIONS.slice(0, 8);
+    const savedMatches = (showSaved && q.length) ? getSavedPlacesMatching(qn) : [];
+    let results = q.length
+      ? savedMatches.concat(LOCATIONS.filter(l => normalize(l.name).includes(qn)))
+      : LOCATIONS.slice(0, 8);
     renderList(list, results, onSelect, input, isDefault, showSaved);
     debounceT = setTimeout(async () => {
       if (q.length <= 2) return;
