@@ -1092,6 +1092,96 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
 .explore-rec-loc{ font-size:10px; color:var(--text-tertiary); margin-top:2px; }
 .explore-rec-go{ margin-top:8px; display:flex; align-items:center; gap:4px; font-size:10.5px; font-weight:700; color:var(--accent-2); background:none; border:none; padding:0; cursor:pointer; font-family:inherit; }
 .explore-rec-go svg{ width:10px; height:10px; }
+     /* ---------- Detalle de lugar (Explorar Choapa, pantalla 2) ---------- */
+.explore-detail-overlay{
+  position:fixed; inset:0; z-index:56; background:var(--bg-deep);
+  transform:translateX(100%); transition: transform .35s cubic-bezier(.16,1,.3,1);
+}
+.explore-detail-overlay.show{ transform:translateX(0); }
+
+.explore-detail-gallery{ position:relative; height:280px; background:linear-gradient(160deg,#1a2530,#0c1218); overflow:hidden; }
+.explore-detail-gallery-track{ display:flex; height:100%; overflow-x:auto; scroll-snap-type:x mandatory; -webkit-overflow-scrolling:touch; }
+.explore-detail-gallery-track::-webkit-scrollbar{ display:none; }
+.explore-gallery-slide{
+  flex:0 0 100%; scroll-snap-align:start; display:flex; align-items:center; justify-content:center;
+  background:linear-gradient(160deg, rgba(16,185,129,0.14), rgba(9,12,16,0.4)); color:rgba(255,255,255,0.35);
+}
+.explore-gallery-slide svg{ width:44px; height:44px; }
+.explore-detail-gallery::after{ content:''; position:absolute; inset:0; pointer-events:none; background:linear-gradient(180deg, rgba(0,0,0,0.15) 0%, transparent 30%, transparent 65%, rgba(6,8,11,0.9) 100%); }
+.explore-detail-back, .explore-detail-gallery-actions{ position:absolute; top:calc(14px + env(safe-area-inset-top)); z-index:2; }
+.explore-detail-back{ left:16px; background:rgba(6,8,11,0.5); border-color:rgba(255,255,255,0.14); }
+.explore-detail-gallery-actions{ right:16px; display:flex; gap:8px; }
+.explore-detail-icon-btn{
+  width:38px; height:38px; border-radius:50%; border:1px solid rgba(255,255,255,0.14); background:rgba(6,8,11,0.5);
+  color:var(--text-primary); display:flex; align-items:center; justify-content:center; cursor:pointer;
+}
+.explore-detail-icon-btn svg{ width:17px; height:17px; }
+.explore-detail-icon-btn.saved{ color:var(--accent-2); border-color:rgba(16,185,129,0.4); }
+.explore-detail-gallery-dots{ position:absolute; bottom:14px; left:50%; transform:translateX(-50%); display:flex; gap:5px; z-index:2; }
+.explore-gallery-dot{ width:5px; height:5px; border-radius:50%; background:rgba(255,255,255,0.3); transition: background .2s ease, transform .2s ease; }
+.explore-gallery-dot.active{ background:var(--accent-2); transform:scale(1.3); }
+
+.explore-detail-body{ padding:20px 20px calc(28px + env(safe-area-inset-bottom)); }
+.explore-detail-name{ font-family:'Inter',sans-serif; font-weight:800; font-size:21px; letter-spacing:-0.015em; }
+.explore-detail-loc{ display:flex; align-items:center; gap:5px; font-size:12.5px; color:var(--text-secondary); margin-top:6px; }
+.explore-detail-loc svg{ width:12px; height:12px; }
+.explore-detail-category-pill{
+  display:inline-flex; align-items:center; gap:5px; margin-top:10px; padding:5px 11px; border-radius:999px;
+  background:rgba(16,185,129,0.1); border:1px solid rgba(16,185,129,0.28); color:var(--accent-2); font-size:11px; font-weight:600;
+}
+.explore-detail-desc{ font-size:12.5px; color:var(--text-secondary); line-height:1.55; margin-top:14px; }
+
+.explore-detail-cta{
+  width:100%; margin-top:20px; padding:15px 18px; border-radius:var(--radius-lg); border:1px solid rgba(16,185,129,0.4);
+  background:linear-gradient(150deg, var(--accent-2), var(--accent-1) 78%); color:#06120D; cursor:pointer;
+  display:flex; align-items:center; gap:12px; text-align:left;
+  box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2);
+}
+.explore-detail-cta svg:first-child{ width:20px; height:20px; flex-shrink:0; }
+.explore-detail-cta-text{ flex:1; display:flex; flex-direction:column; }
+.explore-detail-cta-text strong{ font-size:14.5px; font-weight:800; }
+.explore-detail-cta-text small{ font-size:10.5px; font-weight:600; opacity:.75; margin-top:1px; }
+.explore-detail-cta-chev{ width:16px; height:16px; flex-shrink:0; }
+
+.explore-detail-secondary{ display:flex; gap:10px; margin-top:10px; }
+.explore-detail-sec-btn{
+  flex:1; display:flex; align-items:center; gap:9px; padding:12px; border-radius:var(--radius-md);
+  background:rgba(255,255,255,0.03); border:1px solid var(--border-glass); color:var(--text-primary); cursor:pointer; text-align:left;
+}
+.explore-detail-sec-btn svg{ width:16px; height:16px; color:var(--text-secondary); flex-shrink:0; }
+.explore-detail-sec-btn span{ display:flex; flex-direction:column; }
+.explore-detail-sec-btn strong{ font-size:11.5px; font-weight:700; }
+.explore-detail-sec-btn small{ font-size:9.5px; color:var(--text-tertiary); margin-top:1px; }
+
+.explore-detail-info{ margin-top:24px; border-radius:var(--radius-lg); background:rgba(255,255,255,0.02); border:1px solid var(--border-glass); overflow:hidden; }
+.explore-detail-info-title{ padding:14px 16px 4px; font-size:14px; font-weight:700; }
+.explore-detail-info-row{ display:flex; gap:12px; padding:13px 16px; border-top:1px solid var(--border-glass); }
+.explore-detail-info-row svg{ width:16px; height:16px; color:var(--accent-2); flex-shrink:0; margin-top:1px; }
+.edir-label{ font-size:11.5px; font-weight:700; }
+.edir-value{ font-size:11.5px; color:var(--text-secondary); margin-top:2px; line-height:1.4; }
+
+.explore-thumbs-row{ display:flex; gap:9px; overflow-x:auto; -webkit-overflow-scrolling:touch;
+  -webkit-mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent 100%);
+  mask-image: linear-gradient(90deg, #000 calc(100% - 24px), transparent 100%);
+}
+.explore-thumbs-row::-webkit-scrollbar{ display:none; }
+.explore-thumb{
+  flex-shrink:0; width:82px; height:82px; border-radius:var(--radius-sm); background:linear-gradient(160deg,#1a2530,#0c1218);
+  display:flex; align-items:center; justify-content:center; color:rgba(255,255,255,0.3); border:1px solid var(--border-glass);
+}
+.explore-thumb svg{ width:20px; height:20px; }
+
+.explore-final-cta{
+  margin-top:24px; display:flex; align-items:center; gap:12px; padding:14px; border-radius:var(--radius-lg);
+  background:rgba(16,185,129,0.06); border:1px solid rgba(16,185,129,0.2);
+}
+.explore-final-cta-icon{ width:34px; height:34px; border-radius:50%; background:rgba(16,185,129,0.12); color:var(--accent-2); display:flex; align-items:center; justify-content:center; flex-shrink:0; }
+.explore-final-cta-icon svg{ width:16px; height:16px; }
+.explore-final-cta-text{ flex:1; display:flex; flex-direction:column; }
+.explore-final-cta-text strong{ font-size:12.5px; font-weight:700; }
+.explore-final-cta-text small{ font-size:10px; color:var(--text-tertiary); margin-top:1px; }
+.explore-final-cta-btn{ flex-shrink:0; display:flex; align-items:center; gap:4px; background:none; border:none; color:var(--accent-2); font-size:11.5px; font-weight:700; cursor:pointer; font-family:inherit; }
+.explore-final-cta-btn svg{ width:12px; height:12px; }
 button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline-offset:2px; }
 </style>
 </head>
@@ -1241,6 +1331,80 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
     <button class="auth-btn-primary" id="authProfileSubmit">Empezar a viajar</button>
   </div>
 </div>
+     <div class="explore-detail-overlay" id="exploreDetailOverlay">
+  <div class="explore-scroll">
+    <div class="explore-detail-gallery" id="exploreDetailGallery">
+      <button class="explore-back explore-detail-back" id="exploreDetailBack" aria-label="Volver"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M15 18l-6-6 6-6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      <div class="explore-detail-gallery-actions">
+        <button class="explore-detail-icon-btn" id="exploreDetailSave"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" stroke-linejoin="round"/></svg></button>
+        <button class="explore-detail-icon-btn" id="exploreDetailShare"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="18" cy="5" r="2.4"/><circle cx="6" cy="12" r="2.4"/><circle cx="18" cy="19" r="2.4"/><path d="M8.2 10.7l7.6-4.4M8.2 13.3l7.6 4.4" stroke-linecap="round"/></svg></button>
+      </div>
+      <div class="explore-detail-gallery-track" id="exploreDetailGalleryTrack"></div>
+      <div class="explore-detail-gallery-dots" id="exploreDetailGalleryDots"></div>
+    </div>
+
+    <div class="explore-detail-body">
+      <h1 class="explore-detail-name" id="exploreDetailName"></h1>
+      <div class="explore-detail-loc" id="exploreDetailLoc"></div>
+      <div class="explore-detail-category-pill" id="exploreDetailCategoryPill"></div>
+      <p class="explore-detail-desc" id="exploreDetailDesc"></p>
+
+      <button class="explore-detail-cta" id="exploreDetailGo">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.2"><path d="M12 2l9 21-9-4-9 4z" stroke-linejoin="round"/></svg>
+        <span class="explore-detail-cta-text"><strong>Ir hasta aquí</strong><small>Pedir un viaje con ChoapaGO</small></span>
+        <svg class="explore-detail-cta-chev" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg>
+      </button>
+
+      <div class="explore-detail-secondary">
+        <button class="explore-detail-sec-btn" id="exploreDetailSaveSec">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M6 3h12a1 1 0 0 1 1 1v17l-7-4-7 4V4a1 1 0 0 1 1-1z" stroke-linejoin="round"/></svg>
+          <span><strong>Guardar en mis lugares</strong><small>Añadir a tus favoritos</small></span>
+        </button>
+        <button class="explore-detail-sec-btn" id="exploreDetailMap">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M9 3L3 5v16l6-2 6 2 6-2V3l-6 2-6-2z" stroke-linejoin="round"/></svg>
+          <span><strong>Ver en el mapa</strong><small>Mostrar ubicación</small></span>
+        </button>
+      </div>
+
+      <div class="explore-detail-info">
+        <div class="explore-detail-info-title">Información</div>
+        <div class="explore-detail-info-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>
+          <div><div class="edir-label">Ubicación</div><div class="edir-value" id="exploreDetailAddress"></div></div>
+        </div>
+        <div class="explore-detail-info-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 3" stroke-linecap="round"/></svg>
+          <div><div class="edir-label">Horario</div><div class="edir-value" id="exploreDetailHours"></div></div>
+        </div>
+        <div class="explore-detail-info-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M20.6 12l-8.6 8.6-9-9V3h8.6l9 9z" stroke-linejoin="round"/><circle cx="6.5" cy="6.5" r="1.3"/></svg>
+          <div><div class="edir-label">Categoría</div><div class="edir-value" id="exploreDetailCatValue"></div></div>
+        </div>
+        <div class="explore-detail-info-row">
+          <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1" stroke-linecap="round"/></svg>
+          <div><div class="edir-label">Descripción</div><div class="edir-value" id="exploreDetailInfoDesc"></div></div>
+        </div>
+      </div>
+
+      <div class="explore-section explore-detail-gallery-section">
+        <div class="explore-section-head"><div class="explore-section-title">Galería</div></div>
+        <div class="explore-thumbs-row" id="exploreThumbsRow"></div>
+      </div>
+
+      <div class="explore-section">
+        <div class="explore-section-head"><div class="explore-section-title">También puedes visitar</div></div>
+        <div class="explore-recs-row" id="exploreRelatedRow"></div>
+      </div>
+
+      <div class="explore-final-cta">
+        <div class="explore-final-cta-icon"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M3 13l1.5-4.5A2 2 0 0 1 6.4 7h11.2a2 2 0 0 1 1.9 1.5L21 13v5a1 1 0 0 1-1 1h-1a1 1 0 0 1-1-1v-1H6v1a1 1 0 0 1-1 1H4a1 1 0 0 1-1-1v-5z" stroke-linejoin="round"/></svg></div>
+        <div class="explore-final-cta-text"><strong>¿Cómo quieres llegar?</strong><small>Elige la opción que más te acomode.</small></div>
+        <button class="explore-final-cta-btn" id="exploreFinalGo">Pedir un viaje <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M9 6l6 6-6 6" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+      </div>
+    </div>
+  </div>
+</div>
+
   <div class="explore-overlay" id="exploreOverlay">
   <div class="explore-scroll">
     <div class="explore-header">
@@ -2560,7 +2724,8 @@ function renderExploreScreen() {
           <div class="explore-place-desc">${place.desc}</div>
           <button class="explore-go-btn"><svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2.4"><path d="M5 12h14M13 5l7 7-7 7" stroke-linecap="round" stroke-linejoin="round"/></svg>Ir hasta aquí</button>
         </div>`;
-      card.querySelector('.explore-go-btn').addEventListener('click', () => exploreGoTo(place));
+      card.querySelector('.explore-go-btn').addEventListener('click', (e) => { e.stopPropagation(); exploreGoTo(place); });
+      card.addEventListener('click', () => openExploreDetail(place));
       placesList.appendChild(card);
     });
   }
@@ -2594,6 +2759,113 @@ function closeExploreScreen() {
   document.getElementById('exploreOverlay').classList.remove('show');
 }
 document.getElementById('exploreBack').addEventListener('click', closeExploreScreen);
+
+/* ---------- Detalle de un lugar ---------- */
+let currentExplorePlace = null;
+
+function isExplorePlaceSaved(place) {
+  if (!place.coord) return false;
+  return isAlreadySaved(place.coord);
+}
+
+function saveExplorePlaceAsFavorite(place) {
+  if (!place.coord) { showToast('Ubicación exacta aún no disponible para guardar'); return; }
+  if (isExplorePlaceSaved(place)) { showToast('Ya está en tus lugares guardados'); return; }
+  savedPlaces.favorites.push({ id: 'fav_' + Date.now(), name: place.name, coord: place.coord, icon: 'userfavorite' });
+  persistSavedPlaces();
+  refreshUserPlacesLayer();
+  showSuccessToast('Lugar guardado correctamente');
+  updateExploreDetailSaveButtons(place);
+}
+
+function updateExploreDetailSaveButtons(place) {
+  const saved = isExplorePlaceSaved(place);
+  document.getElementById('exploreDetailSave').classList.toggle('saved', saved);
+}
+
+function renderExploreDetailGallery() {
+  const track = document.getElementById('exploreDetailGalleryTrack');
+  const dots = document.getElementById('exploreDetailGalleryDots');
+  const slideIcon = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.6"><rect x="3" y="4" width="18" height="16" rx="2"/><circle cx="8.5" cy="9.5" r="1.5"/><path d="M21 15l-5-5-11 9" stroke-linejoin="round"/></svg>';
+  const slideCount = 3; // sin fotos reales todavía: mismas placas, no fotos falsas
+  track.innerHTML = '';
+  dots.innerHTML = '';
+  for (let i = 0; i < slideCount; i++) {
+    const s = document.createElement('div'); s.className = 'explore-gallery-slide'; s.innerHTML = slideIcon; track.appendChild(s);
+    const d = document.createElement('div'); d.className = 'explore-gallery-dot' + (i === 0 ? ' active' : ''); dots.appendChild(d);
+  }
+  track.onscroll = () => {
+    const idx = Math.round(track.scrollLeft / track.clientWidth);
+    dots.querySelectorAll('.explore-gallery-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
+  };
+
+  const thumbsRow = document.getElementById('exploreThumbsRow');
+  thumbsRow.innerHTML = '';
+  for (let i = 0; i < slideCount; i++) {
+    const t = document.createElement('div'); t.className = 'explore-thumb'; t.innerHTML = slideIcon;
+    t.addEventListener('click', () => track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' }));
+    thumbsRow.appendChild(t);
+  }
+}
+
+function renderExploreRelated(place) {
+  const row = document.getElementById('exploreRelatedRow');
+  row.innerHTML = '';
+  EXPLORE_PLACES.filter(p => p.name !== place.name).forEach(p => {
+    const card = document.createElement('div');
+    card.className = 'explore-rec-card';
+    const distText = (place.coord && p.coord) ? (haversineMeters(place.coord, p.coord) / 1000).toFixed(1) + ' km' : '';
+    card.innerHTML = `
+      <div class="explore-rec-img" style="background:linear-gradient(150deg, rgba(255,255,255,0.06), rgba(255,255,255,0.01))">
+        <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="1.8"><circle cx="12" cy="12" r="9"/></svg>
+      </div>
+      <div class="explore-rec-body">
+        <div class="explore-rec-name">${p.name}</div>
+        <div class="explore-rec-loc">${distText || p.locality}</div>
+      </div>`;
+    card.addEventListener('click', () => openExploreDetail(p));
+    row.appendChild(card);
+  });
+}
+
+function renderExploreDetail(place) {
+  currentExplorePlace = place;
+  document.getElementById('exploreDetailName').textContent = place.name;
+  document.getElementById('exploreDetailLoc').innerHTML = '<svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M12 21s7-6.5 7-11a7 7 0 1 0-14 0c0 4.5 7 11 7 11z"/><circle cx="12" cy="10" r="2.4"/></svg>' + place.locality + ', Choapa';
+  document.getElementById('exploreDetailCategoryPill').textContent = 'Atracción turística';
+  document.getElementById('exploreDetailDesc').textContent = place.desc;
+  document.getElementById('exploreDetailAddress').textContent = place.coord ? place.locality + ' (ubicación verificada)' : 'No disponible aún';
+  document.getElementById('exploreDetailHours').textContent = 'No disponible aún';
+  document.getElementById('exploreDetailCatValue').textContent = 'Atracción turística';
+  document.getElementById('exploreDetailInfoDesc').textContent = place.desc;
+  updateExploreDetailSaveButtons(place);
+  renderExploreDetailGallery();
+  renderExploreRelated(place);
+}
+
+function openExploreDetail(place) {
+  renderExploreDetail(place);
+  document.getElementById('exploreDetailOverlay').classList.add('show');
+}
+function closeExploreDetail() {
+  document.getElementById('exploreDetailOverlay').classList.remove('show');
+}
+
+document.getElementById('exploreDetailBack').addEventListener('click', closeExploreDetail);
+document.getElementById('exploreDetailSave').addEventListener('click', () => saveExplorePlaceAsFavorite(currentExplorePlace));
+document.getElementById('exploreDetailSaveSec').addEventListener('click', () => saveExplorePlaceAsFavorite(currentExplorePlace));
+document.getElementById('exploreDetailShare').addEventListener('click', async () => {
+  const url = location.href;
+  if (navigator.share) { try { await navigator.share({ title: currentExplorePlace.name, text: currentExplorePlace.desc, url }); } catch (e) {} }
+  else { try { await navigator.clipboard.writeText(url); showSuccessToast('Enlace copiado'); } catch (e) { showToast('No se pudo compartir'); } }
+});
+document.getElementById('exploreDetailMap').addEventListener('click', () => {
+  if (!currentExplorePlace.coord) { showToast('Ubicación exacta aún no disponible'); return; }
+  closeExploreDetail(); closeExploreScreen();
+  map.easeTo({ center: currentExplorePlace.coord, zoom: 15.5, duration: 1200, easing: cameraEasing, essential: true });
+});
+document.getElementById('exploreDetailGo').addEventListener('click', () => exploreGoTo(currentExplorePlace));
+document.getElementById('exploreFinalGo').addEventListener('click', () => exploreGoTo(currentExplorePlace));
 document.getElementById('accountMenuAuthAction').addEventListener('click', () => {
   closeAccountMenu();
   const sess = AuthStore.getSession();
