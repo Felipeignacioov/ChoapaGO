@@ -999,12 +999,24 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
 @media (min-width:640px){ .auth-screen{ padding:16px 26px; } }
 /* ==================== EXPLORAR CHOAPA ==================== */
 .explore-overlay{
-  position:fixed; inset:0; z-index:55; background:var(--bg-deep);
+  position:fixed; inset:0; height:100dvh; z-index:55; background:var(--bg-deep);
   transform:translateY(100%); transition: transform .4s cubic-bezier(.16,1,.3,1);
   overflow:hidden;
 }
 .explore-overlay.show{ transform:translateY(0); }
-.explore-scroll{ height:100%; overflow-y:auto; -webkit-overflow-scrolling:touch; padding-bottom:calc(28px + env(safe-area-inset-bottom)); }
+/* overscroll-behavior:contain es la pieza clave: evita que el gesto de
+   scroll, al llegar al final del contenido, se "encadene" hacia la
+   página de debajo (el mapa, con su botón "Pedir viaje" fijo) — sin
+   esto, seguir arrastrando después del final hace que el navegador
+   pase el scroll restante al documento padre, revelando lo que hay
+   detrás. height:100dvh (en vez de depender solo de inset:0) además
+   evita un hueco al final cuando la barra del navegador se oculta/
+   aparece durante el scroll en móvil. */
+.explore-scroll{
+  height:100%; max-height:100dvh; overflow-y:auto; -webkit-overflow-scrolling:touch;
+  overscroll-behavior:contain; touch-action:pan-y;
+  padding-bottom:calc(28px + env(safe-area-inset-bottom));
+}
 
 .explore-header{ padding:calc(16px + env(safe-area-inset-top)) 20px 4px; position:relative; }
 .explore-back{
@@ -1094,8 +1106,9 @@ box-shadow:0 12px 28px rgba(16,185,129,0.3), inset 0 1px 0 rgba(255,255,255,0.2)
 .explore-rec-go svg{ width:10px; height:10px; }
      /* ---------- Detalle de lugar (Explorar Choapa, pantalla 2) ---------- */
 .explore-detail-overlay{
-  position:fixed; inset:0; z-index:56; background:var(--bg-deep);
+  position:fixed; inset:0; height:100dvh; z-index:56; background:var(--bg-deep);
   transform:translateX(100%); transition: transform .35s cubic-bezier(.16,1,.3,1);
+  overflow:hidden;
 }
 .explore-detail-overlay.show{ transform:translateX(0); }
 
@@ -1384,11 +1397,6 @@ button:focus-visible,a:focus-visible{ outline:2px solid var(--accent-2); outline
           <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><circle cx="12" cy="12" r="9"/><path d="M12 8h.01M11 12h1v5h1" stroke-linecap="round"/></svg>
           <div><div class="edir-label">Descripción</div><div class="edir-value" id="exploreDetailInfoDesc"></div></div>
         </div>
-      </div>
-
-      <div class="explore-section explore-detail-gallery-section">
-        <div class="explore-section-head"><div class="explore-section-title">Galería</div></div>
-        <div class="explore-thumbs-row" id="exploreThumbsRow"></div>
       </div>
 
       <div class="explore-section">
@@ -2794,18 +2802,10 @@ function renderExploreDetailGallery() {
     const s = document.createElement('div'); s.className = 'explore-gallery-slide'; s.innerHTML = slideIcon; track.appendChild(s);
     const d = document.createElement('div'); d.className = 'explore-gallery-dot' + (i === 0 ? ' active' : ''); dots.appendChild(d);
   }
-  track.onscroll = () => {
+ track.onscroll = () => {
     const idx = Math.round(track.scrollLeft / track.clientWidth);
     dots.querySelectorAll('.explore-gallery-dot').forEach((d, i) => d.classList.toggle('active', i === idx));
   };
-
-  const thumbsRow = document.getElementById('exploreThumbsRow');
-  thumbsRow.innerHTML = '';
-  for (let i = 0; i < slideCount; i++) {
-    const t = document.createElement('div'); t.className = 'explore-thumb'; t.innerHTML = slideIcon;
-    t.addEventListener('click', () => track.scrollTo({ left: i * track.clientWidth, behavior: 'smooth' }));
-    thumbsRow.appendChild(t);
-  }
 }
 
 function renderExploreRelated(place) {
