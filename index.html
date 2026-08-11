@@ -5008,6 +5008,23 @@ onGlobalClick((e) => {
 });
 
 document.addEventListener('click', (e) => {
+  // Antes, todos los handlers globales (cerrar autocompletado, POI, menú
+  // de cuenta, driver-card, Target al tocar fuera, etc.) corrían
+  // SINCRÓNICAMENTE en el mismo tick que cualquier tap — incluyendo uno
+  // que solo abría/cerraba el Target. Como el navegador no pinta hasta
+  // que el JS del evento termina, esa suma de trabajo (aunque cada
+  // handler es barato por separado) retrasaba el primer frame visible
+  // de la animación. Se captura el target del evento ya mismo (antes de
+  // que nada cambie) y se difiere la ejecución de este "barrido de
+  // limpieza" al siguiente frame — así cualquier cambio visual que ya
+  // disparó el handler específico del elemento tocado (ej. cycleSheet)
+  // pinta primero, y el resto corre inmediatamente después, invisible
+  // para el usuario.
+  const target = e.target;
+  requestAnimationFrame(() => {
+    for (let i = 0; i < globalClickHandlers.length; i++) globalClickHandlers[i]({ target });
+  });
+});
   for (let i = 0; i < globalClickHandlers.length; i++) globalClickHandlers[i](e);
 });
 </script>
